@@ -1,0 +1,2405 @@
+FullEstateListing Class
+
+description:
+    Stores description and value of acive listing
+
+Class FullEstateLisitng:
+    def __init__(self,data):
+        self.data = data
+
+        #long description
+        self.description = self.data['text']['value']
+
+        #seo quering for target API
+        self.seo = data['seo']
+
+        #short important description
+        self.meta_description = data['meta_description']
+        
+        #broker info etc ....
+        self.x = data['_embedded']
+
+        #images list of lists
+        self.images = self.make_images()
+        
+        #geolocation
+        self.coordinates = self.get_coordinates()
+        
+        #query data
+        self.recommendations_data = data['recommendations_data']
+        
+        #value with sell property type size in kk + m2
+        self.name = data['name']['value']
+
+        #cena, poznamka k cene, stav objektu, typ vlastnictvi,plocha topeni, energeticka narocnost, usefull for more info about property
+        self.items = data['items']
+
+        #locality_district_id, filtering value
+        self.locality_district_id = data['locality_district_id']
+
+
+Request response
+
+{
+    "text": {
+        "name": "Popis",
+        "value": "Ve výhradním zastoupení majitele nabízíme k prodeji jedinečný byt 4+1 s výměrou 117 m2, který se nachází ve 2. patře rodinné vily s celkem 4 bytovými jednotkami. Tento unikátní byt disponuje terasou o výměře 57 m2 a vlastní zahradou (341 m2), poskytující novým majitelům skvělý prostor k odpočinku a relaxaci.\r\n\r\nByt má dispozici 4+1, po vstupu do bytu vstoupíme do vstupní haly z které je přístup na malý balkon. Vpravo se nachází samostatná toaleta s umyvadlem a 2 okny, dále komora a pokoj. Naproti vstupním dveřím je prostorná kuchyně ke které náleží špajz a jejíž zajímavostí je propojení malým servírovacím okénkem s vedlejší místností, tedy jídelnou. Vlevo je obývací pokoj, který je oddělen od jídelny dvoukřídlími posuvnými dveřmi, tento prvek dodává bytu příjemnou atmosféru. V obývacím pokoji nelze opomenout funkční krbová kamna a vstup na terasu. Díky francouzským dveřím a oknům je v místnosti opravdu příjemný dostatek světla i v zimních měsících.  Z obývacího pokoje se vchází do posledního z pokojů, jedná se o největší místnost v bytě, z které se vchází do koupelny s vanou, ve které je též umístěna toaleta a plynová karma, vše je dobře patrné z přiloženého půdorysu bytu ve fotogalerii.\r\n\r\nByt je vhodný k rekonstrukci, ale i v současném udržovaném stavu poskytuje příjemné bydlení. V minulých letech byla v bytě částečně nově vyměněna plastová okna, elektrické rozvody jsou v mědi.  Na podlaze pod koberci jsou původní zachovalé parkety, v ostatních místnostech pak dlažba.  Byt má vlastní plynový kotel pro vytápění do radiátorů.\r\n\r\nK bytu náleží zahrada o velikosti 341 m2, pozemek je vymezený na katastru a má své číslo parcelní. Je tak ve výhradním majetku a užívání majitelů bytu. K bytu také náleží sklep v suterénu domu o velikosti 15 m2.\r\n\r\nLokalita Rokycan na předměstí Plzně nabízí dostupné bydlení s veškerou občanskou vybaveností v dosahu. Tento byt je ideální pro ty, kteří hledají kombinaci pohodlného prostorného bydlení v bytě se zázemím a benefity rodinného domu (zahrada, terasa, zděná konstrukce) a s  možností vlastní úpravy dle svých požadavků.\r\n\r\nPokud Vás tato nabídka zaujala, neváhejte kontaktovat makléře nabídky."
+    },
+    "poi_doctors": {
+        "url": "https://www.firmy.cz/Prvni-pomoc-a-zdravotnictvi/Zdravotnicke-sluzby/Zdravotnicka-zarizeni?x=13.58262&y=49.742214&rt=adresa",
+        "values": [
+            {
+                "distance": 46.0,
+                "rating": 5,
+                "description": "MVDr. Luděk Uzel",
+                "index": 1,
+                "url": "https://www.firmy.cz/detail/470930-mvdr-ludek-uzel-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.58266830444336,
+                "source": "firm",
+                "source_id": 470930,
+                "lat": 49.74180221557617,
+                "review_count": 45,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/ikFzHQ.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/164",
+                "name": "Veterinář"
+            },
+            {
+                "distance": 1207.0,
+                "rating": 5,
+                "description": "Veterina klinika Rokycany s.r.o.",
+                "index": 2,
+                "url": "https://www.firmy.cz/detail/13311642-veterina-klinika-rokycany-s-r-o-rokycany-nove-mesto.html",
+                "lines": [],
+                "lon": 13.589820861816406,
+                "source": "firm",
+                "source_id": 13311642,
+                "lat": 49.73240280151367,
+                "review_count": 18,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_QK_c/YccFV.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/164",
+                "name": "Veterinář"
+            },
+            {
+                "distance": 1399.0,
+                "rating": -1,
+                "description": "MVDr. Václav Vozák",
+                "index": 3,
+                "url": "https://www.firmy.cz/detail/13360554-mvdr-vaclav-vozak-rokycany-nove-mesto.html",
+                "lines": [],
+                "lon": 13.602027893066406,
+                "source": "firm",
+                "source_id": 13360554,
+                "lat": 49.743141174316406,
+                "review_count": 0,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_QQ_v/BoNjG.jpeg?fl=cro,0,653,3840,1190|res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/164",
+                "name": "Veterinář"
+            },
+            {
+                "distance": 1538.0,
+                "rating": 5,
+                "description": "MVDr. Radek Šerý",
+                "index": 4,
+                "url": "https://www.firmy.cz/detail/2643824-mvdr-radek-sery-rokycany-nove-mesto.html",
+                "lines": [],
+                "lon": 13.602417945861816,
+                "source": "firm",
+                "source_id": 2643824,
+                "lat": 49.73696517944336,
+                "review_count": 36,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/fvs0Z3.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/164",
+                "name": "Veterinář"
+            },
+            {
+                "distance": 4340.0,
+                "rating": 5,
+                "description": "MVDr. Ladislav Bejček",
+                "index": 5,
+                "url": "https://www.firmy.cz/detail/602828-mvdr-ladislav-bejcek-osek.html",
+                "lines": [],
+                "lon": 13.59157943725586,
+                "source": "firm",
+                "source_id": 602828,
+                "lat": 49.78080749511719,
+                "review_count": 47,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/7dY3Eu.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/164",
+                "name": "Veterinář"
+            }
+        ],
+        "name": "Lékaři"
+    },
+    "poi": [
+        {
+            "distance": 261.0,
+            "rating": 3,
+            "description": "Penny Market",
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/207776-penny-market-rokycany-plzenske-predmesti.html",
+            "lines": [],
+            "lon": 13.58581256866455,
+            "source": "firm",
+            "source_id": 207776,
+            "lat": 49.743324279785156,
+            "review_count": 5,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_gV_p/bKfGDZ.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/423",
+            "name": "Večerka"
+        },
+        {
+            "distance": 46.0,
+            "rating": 5,
+            "description": "MVDr. Luděk Uzel",
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/470930-mvdr-ludek-uzel-rokycany-plzenske-predmesti.html",
+            "lines": [],
+            "lon": 13.58266830444336,
+            "source": "firm",
+            "source_id": 470930,
+            "lat": 49.74180221557617,
+            "review_count": 45,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/ikFzHQ.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/164",
+            "name": "Veterinář"
+        },
+        {
+            "distance": 3284.0,
+            "rating": -1,
+            "description": "Hospoda U komína",
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/13177533-hospoda-u-komina-klabava.html",
+            "lines": [],
+            "lon": 13.54000186920166,
+            "source": "firm",
+            "source_id": 13177533,
+            "lat": 49.752899169921875,
+            "review_count": 0,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_QL_V/MfUBR1.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/362",
+            "name": "Hospoda"
+        },
+        {
+            "distance": 659.0,
+            "rating": 5,
+            "description": "Cukrárna Jeřabinka",
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/13344830-cukrarna-jerabinka-rokycany-plzenske-predmesti.html",
+            "lines": [],
+            "lon": 13.590177536010742,
+            "source": "firm",
+            "source_id": 13344830,
+            "lat": 49.738853454589844,
+            "review_count": 4,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_gV_v/KYgYkT.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/38",
+            "name": "Cukrárna"
+        },
+        {
+            "distance": 675.0,
+            "rating": -1,
+            "description": "Dětské hřiště Třebízského",
+            "index": 1,
+            "url": "https://mapy.cz/zakladni?x=13.591655928483645&y=49.743856795713356&z=17&source=base&id=1926173",
+            "lines": [],
+            "lon": 13.591655928483645,
+            "source": "base",
+            "source_id": 1926173,
+            "lat": 49.743856795713356,
+            "review_count": 0,
+            "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/xqeo9B.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/204",
+            "name": "Hřiště"
+        },
+        {
+            "distance": 1928.0,
+            "rating": -1,
+            "description": "Rokycanské mokřady",
+            "index": 1,
+            "url": "https://mapy.cz/zakladni?x=13.58565081006472&y=49.72498108703884&z=17&source=base&id=2519743",
+            "lines": [],
+            "lon": 13.58565081006472,
+            "source": "base",
+            "source_id": 2519743,
+            "lat": 49.72498108703884,
+            "review_count": 0,
+            "photo_url": "https://d34-a.sdn.cz/d_34/c_img_QR_t/ZEQQyp.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/368",
+            "name": "Přírodní zajímavost"
+        },
+        {
+            "distance": 621.0,
+            "rating": 5,
+            "description": "Střední škola, Rokycany",
+            "walkDistance": 873,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/361373-stredni-skola-rokycany-rokycany-plzenske-predmesti.html",
+            "lines": [],
+            "lon": 13.588698387145996,
+            "source": "firm",
+            "source_id": 361373,
+            "time": 911,
+            "lat": 49.738243103027344,
+            "review_count": 1,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/Ua10E6.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/142",
+            "name": "Škola"
+        },
+        {
+            "distance": 471.0,
+            "rating": 5,
+            "description": "Restaurace u Kosnarů",
+            "walkDistance": 747,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/13118768-restaurace-u-kosnaru-rokycany-plzenske-predmesti.html",
+            "lines": [],
+            "lon": 13.586099624633789,
+            "source": "firm",
+            "source_id": 13118768,
+            "time": 784,
+            "lat": 49.73862838745117,
+            "review_count": 6,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_QL_u/zlWZjb.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/133",
+            "name": "Restaurace"
+        },
+        {
+            "distance": 815.0,
+            "rating": 4,
+            "description": "Pošta Rokycany 1 - Česká pošta, s.p.",
+            "walkDistance": 917,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/216559-posta-rokycany-1-rokycany-nove-mesto.html",
+            "lines": [],
+            "lon": 13.593671798706055,
+            "source": "firm",
+            "source_id": 216559,
+            "time": 867,
+            "lat": 49.74057388305664,
+            "review_count": 12,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/cMPzmG.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/122",
+            "name": "Pošta"
+        },
+        {
+            "distance": 871.0,
+            "rating": 5,
+            "description": "Lékárna FARMACUM",
+            "walkDistance": 962,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/194261-lekarna-farmacum-rokycany-stred.html",
+            "lines": [],
+            "lon": 13.594643592834473,
+            "source": "firm",
+            "source_id": 194261,
+            "time": 900,
+            "lat": 49.74322509765625,
+            "review_count": 4,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/5WAhC9.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/72",
+            "name": "Lékárna"
+        },
+        {
+            "distance": 31.0,
+            "rating": -1,
+            "description": "Rokycany, Plzeňská",
+            "walkDistance": 128,
+            "index": 1,
+            "url": "https://mapy.cz/zakladni?x=13.5826941754124&y=49.7419367426479&z=17&source=pubt&id=15243787",
+            "lines": [
+                {
+                    "poi_id": 15243787,
+                    "terminus": "Cheznovice, ObÚ",
+                    "line_label": "222",
+                    "departure_direction": -1,
+                    "line_id": "470222",
+                    "type": "bus"
+                },
+                {
+                    "poi_id": 15243787,
+                    "terminus": "Zbiroh, nám.",
+                    "line_label": "224",
+                    "departure_direction": -1,
+                    "line_id": "470224",
+                    "type": "bus"
+                },
+                {
+                    "poi_id": 15243787,
+                    "terminus": "Rokycany, aut.nádr.",
+                    "line_label": "238",
+                    "departure_direction": 1,
+                    "line_id": "470238",
+                    "type": "bus"
+                },
+                {
+                    "poi_id": 15243787,
+                    "terminus": "Rokycany, aut.nádr.",
+                    "line_label": "245",
+                    "departure_direction": 1,
+                    "line_id": "470245",
+                    "type": "bus"
+                },
+                {
+                    "poi_id": 15243787,
+                    "terminus": "Rokycany, nem.",
+                    "line_label": "211",
+                    "departure_direction": 1,
+                    "line_id": "475211",
+                    "type": "bus"
+                }
+            ],
+            "lon": 13.5826941754124,
+            "source": "pubt",
+            "source_id": 15243787,
+            "time": 136,
+            "lat": 49.7419367426479,
+            "review_count": 0,
+            "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/KgLqvG.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/198",
+            "name": "Bus MHD"
+        },
+        {
+            "distance": 970.0,
+            "rating": -1,
+            "description": "Tělocvičná jednota Sokol Rokycany",
+            "walkDistance": 1230,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/736438-telocvicna-jednota-sokol-rokycany-rokycany-nove-mesto.html",
+            "lines": [],
+            "lon": 13.595647811889648,
+            "source": "firm",
+            "source_id": 736438,
+            "time": 1156,
+            "lat": 49.73992156982422,
+            "review_count": 0,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/cR1zmK.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/144",
+            "name": "Sportoviště"
+        },
+        {
+            "distance": 703.0,
+            "rating": 5,
+            "description": "Mateřská škola HARMONIE, spol. s r.o.",
+            "walkDistance": 1087,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/677134-materska-skola-harmonie-rokycany-nove-mesto.html",
+            "lines": [],
+            "lon": 13.590324401855469,
+            "source": "firm",
+            "source_id": 677134,
+            "time": 1076,
+            "lat": 49.738311767578125,
+            "review_count": 1,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/SJZO9z.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/412",
+            "name": "Školka"
+        },
+        {
+            "distance": 747.0,
+            "rating": -1,
+            "description": "Bankomat Komerční banky",
+            "walkDistance": 852,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/594647-bankomat-komercni-banky-rokycany-nove-mesto.html",
+            "lines": [],
+            "lon": 13.592805862426758,
+            "source": "firm",
+            "source_id": 594647,
+            "time": 809,
+            "lat": 49.740882873535156,
+            "review_count": 0,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/Hcgz24.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/28",
+            "name": "Bankomat"
+        },
+        {
+            "distance": 716.0,
+            "rating": -1,
+            "description": "Rokycany",
+            "walkDistance": 902,
+            "index": 1,
+            "url": "https://mapy.cz/zakladni?x=13.5920479977&y=49.7401220874&z=17&source=pubt&id=15212691",
+            "lines": [],
+            "lon": 13.5920479977,
+            "source": "pubt",
+            "source_id": 15212691,
+            "time": 874,
+            "lat": 49.7401220874,
+            "review_count": 0,
+            "photo_url": "https://d34-a.sdn.cz/d_34/c_img_gV_Z/46BIxz.mpo?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/169",
+            "name": "Vlak"
+        },
+        {
+            "distance": 1319.0,
+            "rating": 4,
+            "description": "Kaufland",
+            "walkDistance": 1557,
+            "index": 1,
+            "url": "https://www.firmy.cz/detail/2198489-kaufland-rokycany-nove-mesto.html",
+            "lines": [],
+            "lon": 13.600255012512207,
+            "source": "firm",
+            "source_id": 2198489,
+            "time": 1464,
+            "lat": 49.73894119262695,
+            "review_count": 35,
+            "photo_url": "//d48-a.sdn.cz/d_48/c_img_QL_j/yo1Ud.jpeg?fl=res,{width},{height},3",
+            "imgUrl": "https://api.mapy.cz/poiimg/icon/101",
+            "name": "Obchod"
+        }
+    ],
+    "seo": {
+        "category_main_cb": 1,
+        "category_sub_cb": 9,
+        "category_type_cb": 1,
+        "locality": "rokycany-plzenske-predmesti-plzenska"
+    },
+    "codeItems": {
+        "something_more1": [
+            3110,
+            3120
+        ],
+        "ownership": 1,
+        "building_type_search": 2
+    },
+    "meta_description": "Byt 4+1 190 m² k prodeji Plzeňská, Rokycany - Plzeňské Předměstí; 4 490 000 Kč (Včetně provize, právního a hypotéčního servisu. V případě více zájemců bude nemovitost prodána nejlepší nabídce dle výběru prodávajících.), terasa, cihlová stavba, osobní vlastnictví, v dobrém stavu.",
+    "_embedded": {
+        "favourite": {
+            "is_favourite": false,
+            "_links": {
+                "self": {
+                    "href": "/cs/v2/favourite/3859600716"
+                }
+            }
+        },
+        "calculator": null,
+        "seller": {
+            "specialization_string": "",
+            "user_id": 81903,
+            "specialization": {
+                "category": [
+                    {
+                        "category_main_cb": 1,
+                        "num": 1
+                    }
+                ],
+                "type": [
+                    {
+                        "num": 1,
+                        "category_type_cb": 1
+                    }
+                ]
+            },
+            "broker_video": {},
+            "phones": [
+                {
+                    "code": "420",
+                    "type": "MOB",
+                    "number": "777078945"
+                }
+            ],
+            "image": "https://d18-a.sdn.cz/d_18/c_img_QL_J5/IxRL8O.jpeg",
+            "broker_ico": 4423160,
+            "image_dynamic": "https://d18-a.sdn.cz/d_18/c_img_QL_J5/IxRL8O.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90",
+            "active": true,
+            "offers": [],
+            "_links": {
+                "self": {
+                    "profile": "/seller/1/doc",
+                    "href": "/cs/v2/seller/81903"
+                }
+            },
+            "user_name": "Ing. Michal Regal",
+            "certificates": [],
+            "broker_tip_description": "",
+            "_embedded": {
+                "premise": {
+                    "www": "https://www.remaxg8reality.cz/kancelar/kladno/",
+                    "phones": [
+                        {
+                            "code": "420",
+                            "type": "TEL",
+                            "number": "605731504"
+                        },
+                        {
+                            "code": "420",
+                            "type": "TEL",
+                            "number": "312240239"
+                        }
+                    ],
+                    "poi_logo": "",
+                    "logo": "https://d48-a.sdn.cz/d_48/c_img_gW_b/ID4DMy.png?fl=res,140,140,3,ffffff",
+                    "company_subject_id": 4015119,
+                    "id": 32791,
+                    "ico": 1913638,
+                    "locality": {
+                        "lat": 50.1444234263,
+                        "lon": 14.0958154945
+                    },
+                    "company_id": 11008,
+                    "allow_calculator": 1,
+                    "logo_small": "https://d48-a.sdn.cz/d_48/c_img_gW_b/ID4DMy.png?fl=res,70,70,1,ffffff",
+                    "seznam_naplno": 1,
+                    "_links": {
+                        "self": {
+                            "profile": "/companies/1/doc",
+                            "href": "/cs/v2/companies/32791"
+                        }
+                    },
+                    "retargeting_id": 0,
+                    "email": "g8reality2@remax-czech.cz",
+                    "description": "Realitní kancelář s působením na Kladensku, kde zajišťuje prodej a pronájem nemovitostí, pozemků, domů a bytů v celém Středočeském kraji. Zajišťujeme hypoteční úvěry, stavební spoření, financování nemovitostí, znalecké posudky, odhady cen nemovitostí a energetické štítky. Chceme lepší realitní trh.",
+                    "address": "Kleinerova 1466, 27201 Kladno",
+                    "ask": {
+                        "opening_time_visible": true,
+                        "phones": [
+                            {
+                                "role": "Mobil",
+                                "number": "605731504",
+                                "country_code": "420"
+                            },
+                            {
+                                "role": "Telefon",
+                                "number": "312240239",
+                                "country_code": "420"
+                            }
+                        ],
+                        "addr_street": "Kleinerova",
+                        "address": "Kleinerova 1466, 272 01  Kladno",
+                        "pie": [
+                            {
+                                "category_main_cb": 1,
+                                "num": 34
+                            },
+                            {
+                                "category_main_cb": 2,
+                                "num": 59
+                            },
+                            {
+                                "category_main_cb": 3,
+                                "num": 31
+                            },
+                            {
+                                "category_main_cb": 4,
+                                "num": 26
+                            },
+                            {
+                                "category_main_cb": 5,
+                                "num": 5
+                            }
+                        ],
+                        "opening_time_additional_info": "",
+                        "opening_time_st": [
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 4,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "holiday_info": "Státní svátek, otevírací hodiny se můžou lišit.",
+                                "exception_id": "",
+                                "date": "2024-01-01",
+                                "additional_info": "",
+                                "day": "monday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 5,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2024-01-02",
+                                "day": "tuesday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 6,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2024-01-03",
+                                "day": "wednesday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 0,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2023-12-28",
+                                "day": "thursday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 1,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2023-12-29",
+                                "day": "friday",
+                                "nonstop": false
+                            },
+                            {
+                                "relative_sort": 2,
+                                "exception_id": "",
+                                "day": "saturday",
+                                "specification_id": "closed",
+                                "date": "2023-12-30",
+                                "additional_info": "",
+                                "nonstop": false
+                            },
+                            {
+                                "relative_sort": 3,
+                                "exception_id": "",
+                                "day": "sunday",
+                                "specification_id": "closed",
+                                "date": "2023-12-31",
+                                "additional_info": "",
+                                "nonstop": false
+                            }
+                        ],
+                        "photos_url": [],
+                        "partners": [
+                            {
+                                "title": "G8 Reality",
+                                "seo_name": "re-max-g8-reality-praha-karlin",
+                                "id": "13126425",
+                                "logos_url": [
+                                    {
+                                        "medium": "https://d48-a.sdn.cz/d_48/c_img_H_F/xiyJxF.png?fl=res,120,120,1,ffffff",
+                                        "description": {
+                                            "source": "firmy_adminweb",
+                                            "type": "logo",
+                                            "id": 3141359,
+                                            "metadata": {
+                                                "size": [
+                                                    110,
+                                                    140
+                                                ]
+                                            }
+                                        },
+                                        "form": "https://d48-a.sdn.cz/d_48/c_img_H_F/xiyJxF.png",
+                                        "big": "https://d48-a.sdn.cz/d_48/c_img_H_F/xiyJxF.png?fl=res,140,140,3,ffffff",
+                                        "small": "https://d48-a.sdn.cz/d_48/c_img_H_F/xiyJxF.png?fl=res,70,70,1,ffffff",
+                                        "email": "https://d48-a.sdn.cz/d_48/c_img_H_F/xiyJxF.png",
+                                        "orig": "https://d48-a.sdn.cz/d_48/c_img_H_F/xiyJxF.png"
+                                    }
+                                ]
+                            }
+                        ],
+                        "review_count": 4,
+                        "firmy_review_url": "https://www.firmy.cz/detail/13296041-re-max-g8-reality-kladno.html#pridat-hodnoceni",
+                        "emails": [
+                            {
+                                "role": "E-mail",
+                                "email": "g8reality2@remax-czech.cz"
+                            }
+                        ],
+                        "offers": [],
+                        "stars": 3.0,
+                        "opening_time": [
+                            "0,09:00,17:00,,",
+                            "0,09:00,17:00,,",
+                            "0,09:00,17:00,,",
+                            "0,09:00,17:00,,",
+                            "0,09:00,17:00,,",
+                            "0,,,,",
+                            "0,,,,"
+                        ],
+                        "email": "consult@remax-czech.cz",
+                        "opening_time_today": 3,
+                        "description": "Realitní kancelář s působením na Kladensku, kde zajišťuje prodej a pronájem nemovitostí, pozemků, domů a bytů v celém Středočeském kraji. Zajišťujeme hypoteční úvěry, stavební spoření, financování nemovitostí, znalecké posudky, odhady cen nemovitostí a energetické štítky. Chceme lepší realitní trh.",
+                        "photos_premise_url": [
+                            {
+                                "full": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,600,400,3,ffffff",
+                                "description": {
+                                    "source": "firmy_userweb",
+                                    "type": "mphoto",
+                                    "id": 4308415,
+                                    "visits": 267375,
+                                    "metadata": {
+                                        "size": [
+                                            2706,
+                                            1793
+                                        ]
+                                    }
+                                },
+                                "hintGallery": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,1200,900,1",
+                                "big": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg",
+                                "half": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,300,200,3,ffffff",
+                                "list": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,220,147,3,ffffff",
+                                "mapcircle": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,59,59,3,ffffff",
+                                "hintThumbMedium": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,600,400,3",
+                                "small": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,112,84,1,ffffff",
+                                "medium": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,600,450,1,ffffff",
+                                "noborder": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,600,450,3,ffffff",
+                                "hintThumbSmall": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,300,200,3",
+                                "gallery": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg?fl=res,250,167,3,ffffff",
+                                "orig": "https://d48-a.sdn.cz/d_48/c_img_gV_a/IxTDRA.jpeg"
+                            }
+                        ],
+                        "opening_time_next_week": [
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 4,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2024-01-08",
+                                "day": "monday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 5,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2024-01-09",
+                                "day": "tuesday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 6,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2024-01-10",
+                                "day": "wednesday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 0,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2024-01-04",
+                                "day": "thursday",
+                                "nonstop": false
+                            },
+                            {
+                                "amStart": {
+                                    "hour": 9,
+                                    "minute": 0
+                                },
+                                "relative_sort": 1,
+                                "specification_id": "open",
+                                "amEnd": {
+                                    "hour": 17,
+                                    "minute": 0
+                                },
+                                "additional_info": "",
+                                "exception_id": "",
+                                "date": "2024-01-05",
+                                "day": "friday",
+                                "nonstop": false
+                            },
+                            {
+                                "relative_sort": 2,
+                                "exception_id": "",
+                                "day": "saturday",
+                                "specification_id": "closed",
+                                "date": "2024-01-06",
+                                "additional_info": "",
+                                "nonstop": false
+                            },
+                            {
+                                "relative_sort": 3,
+                                "exception_id": "",
+                                "day": "sunday",
+                                "specification_id": "closed",
+                                "date": "2024-01-07",
+                                "additional_info": "",
+                                "nonstop": false
+                            }
+                        ],
+                        "addr_city": "Kladno",
+                        "opening_time_today_date": "2023-12-28",
+                        "is_paid": true,
+                        "addr_zip": "27201",
+                        "opening_time_description": "Otevírací hodiny",
+                        "addr_house_num": "1466"
+                    },
+                    "name": "RE/MAX G8 Reality",
+                    "url": "RE-MAX-G8-Reality-Kladno",
+                    "ask_id": 13296041,
+                    "company_paid_firmy": 1,
+                    "www_visible": "https://www.remaxg8reality.cz/kancelar/kladno/"
+                }
+            },
+            "in_banner_seller": false,
+            "email": "michal.regal@re-max.cz",
+            "ask": {}
+        },
+        "note": {
+            "note": "",
+            "_links": {
+                "self": {
+                    "href": "/cs/v2/note/3859600716"
+                }
+            },
+            "has_note": false
+        },
+        "images": [
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/XiUzup.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/XiUzup.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/XiUzup.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "001.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/XiUzup.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/XiUzup.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600522,
+                "order": 1
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/Q5NzmT.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/Q5NzmT.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/Q5NzmT.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "002.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/Q5NzmT.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/Q5NzmT.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600525,
+                "order": 4
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/ulTzuq.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/ulTzuq.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/ulTzuq.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "003.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/ulTzuq.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/ulTzuq.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600528,
+                "order": 5
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/36tzyr.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/36tzyr.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/36tzyr.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "004.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/36tzyr.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/36tzyr.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600531,
+                "order": 6
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/HaKztj.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/HaKztj.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/HaKztj.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "005.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/HaKztj.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/HaKztj.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600534,
+                "order": 7
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/SWKzyD.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/SWKzyD.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/SWKzyD.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "006.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/SWKzyD.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/SWKzyD.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600537,
+                "order": 8
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/yJlztk.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/yJlztk.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/yJlztk.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "007.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/yJlztk.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/yJlztk.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600540,
+                "order": 9
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/9Boz2w.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/9Boz2w.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/9Boz2w.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "008.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/9Boz2w.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/9Boz2w.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600543,
+                "order": 10
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/FZGzwj.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/FZGzwj.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/FZGzwj.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "009.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/FZGzwj.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/FZGzwj.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600546,
+                "order": 11
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/iruz2x.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/iruz2x.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/iruz2x.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0010.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/iruz2x.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/iruz2x.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600549,
+                "order": 12
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/KHpztl.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/KHpztl.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/KHpztl.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0011.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/KHpztl.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QP_LH/KHpztl.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600552,
+                "order": 13
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/fPRz2y.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/fPRz2y.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/fPRz2y.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0012.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/fPRz2y.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/fPRz2y.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600555,
+                "order": 14
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/23Az2z.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/23Az2z.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/23Az2z.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0014.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/23Az2z.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/23Az2z.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600558,
+                "order": 15
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/5c8z20.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/5c8z20.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/5c8z20.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0015.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/5c8z20.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/5c8z20.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600561,
+                "order": 16
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/i1Izys.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/i1Izys.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/i1Izys.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0016.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/i1Izys.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/i1Izys.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600564,
+                "order": 17
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/1B9zwk.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/1B9zwk.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/1B9zwk.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0017.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/1B9zwk.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/1B9zwk.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600567,
+                "order": 18
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/zekzwl.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/zekzwl.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/zekzwl.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0017b.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/zekzwl.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/zekzwl.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600570,
+                "order": 19
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/jDvz21.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/jDvz21.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/jDvz21.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0017c.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/jDvz21.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/jDvz21.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600573,
+                "order": 20
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QK_Js/MVgzxt.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QK_Js/MVgzxt.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QK_Js/MVgzxt.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0017d.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QK_Js/MVgzxt.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QK_Js/MVgzxt.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600576,
+                "order": 21
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/IgVzza.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/IgVzza.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/IgVzza.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0018.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/IgVzza.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/IgVzza.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600579,
+                "order": 22
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/WVczur.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/WVczur.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/WVczur.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "019.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/WVczur.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/WVczur.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600582,
+                "order": 23
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/BEnzmU.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/BEnzmU.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/BEnzmU.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "0020.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/BEnzmU.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/BEnzmU.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600585,
+                "order": 24
+            },
+            {
+                "kind": 4,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/0yqzmV.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/0yqzmV.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/0yqzmV.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "2-3d.jpeg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/0yqzmV.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/0yqzmV.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600588,
+                "order": 25
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/FIazyt.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/FIazyt.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/FIazyt.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "021.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/FIazyt.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QR_MK/FIazyt.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600591,
+                "order": 26
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/gIuzmW.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/gIuzmW.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/gIuzmW.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "022.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/gIuzmW.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/gIuzmW.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600594,
+                "order": 27
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/94MzmX.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/94MzmX.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/94MzmX.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "023.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/94MzmX.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/94MzmX.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600597,
+                "order": 28
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/G5pz23.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/G5pz23.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/G5pz23.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "024.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/G5pz23.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QQ_Lp/G5pz23.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600600,
+                "order": 29
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/x6Xzus.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/x6Xzus.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/x6Xzus.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "025.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/x6Xzus.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QI_Jn/x6Xzus.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600606,
+                "order": 30
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/bWmzzb.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/bWmzzb.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/bWmzzb.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "026.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/bWmzzb.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/bWmzzb.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600609,
+                "order": 31
+            },
+            {
+                "kind": 2,
+                "_links": {
+                    "dynamicDown": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/4MTzyE.jpeg?fl=res,{width},{height},3|shr,,20|jpg,90"
+                    },
+                    "gallery": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/4MTzyE.jpeg?fl=res,221,166,3|shr,,20|jpg,90"
+                    },
+                    "self": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/4MTzyE.jpeg?fl=res,1920,1080,1|wrm,/watermark/sreality.png,10|shr,,20|jpg,90",
+                        "title": "027.jpg"
+                    },
+                    "dynamicUp": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/4MTzyE.jpeg?fl=res,{width},{height},3|wrm,/watermark/sreality.png,10|shr,,20|jpg,90"
+                    },
+                    "view": {
+                        "href": "https://d18-a.sdn.cz/d_18/c_img_QN_KD/4MTzyE.jpeg?fl=res,749,562,3|shr,,20|jpg,90"
+                    }
+                },
+                "id": 875600615,
+                "order": 32
+            }
+        ],
+        "matterport_url": ""
+    },
+    "locality": {
+        "name": "Adresa",
+        "value": "Plzeňská, Rokycany - Plzeňské Předměstí",
+        "accuracy": "address"
+    },
+    "panorama": 1,
+    "poi_leisure_time": {
+        "url": "https://mapy.cz/zakladni?x=13.58262&y=49.742214&z=16&q=volny%20%C4%8Das",
+        "values": [
+            {
+                "distance": 970.0,
+                "rating": -1,
+                "description": "Tělocvičná jednota Sokol Rokycany",
+                "walkDistance": 1230,
+                "index": 1,
+                "url": "https://www.firmy.cz/detail/736438-telocvicna-jednota-sokol-rokycany-rokycany-nove-mesto.html",
+                "lines": [],
+                "lon": 13.595647811889648,
+                "source": "firm",
+                "source_id": 736438,
+                "time": 1156,
+                "lat": 49.73992156982422,
+                "review_count": 0,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/cR1zmK.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/144",
+                "name": "Sportoviště"
+            },
+            {
+                "distance": 970.0,
+                "rating": -1,
+                "description": "Sokolská župa Rokycanova",
+                "index": 2,
+                "url": "https://www.firmy.cz/detail/12797235-sokolska-zupa-rokycanova-rokycany-nove-mesto.html",
+                "lines": [],
+                "lon": 13.595647811889648,
+                "source": "firm",
+                "source_id": 12797235,
+                "lat": 49.73992156982422,
+                "review_count": 0,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/Ne9zmO.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/144",
+                "name": "Sportoviště"
+            },
+            {
+                "distance": 1006.0,
+                "rating": -1,
+                "description": "Fit studio aerobic Narovec",
+                "index": 3,
+                "url": "https://www.firmy.cz/detail/12913041-fit-studio-aerobic-narovec-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.596616744995117,
+                "source": "firm",
+                "source_id": 12913041,
+                "lat": 49.742431640625,
+                "review_count": 0,
+                "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QK_Js/wL5pCv.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/144",
+                "name": "Sportoviště"
+            },
+            {
+                "distance": 1024.0,
+                "rating": 5,
+                "description": "Sportovní areál Jižní předměstí Rokycany",
+                "index": 4,
+                "url": "https://www.firmy.cz/detail/686019-sportovni-areal-jizni-predmesti-rokycany-rokycany.html",
+                "lines": [],
+                "lon": 13.593260765075684,
+                "source": "firm",
+                "source_id": 686019,
+                "lat": 49.73609161376953,
+                "review_count": 2,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_QN_4/IdFDRk.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/144",
+                "name": "Sportoviště"
+            },
+            {
+                "distance": 1067.0,
+                "rating": -1,
+                "description": "Areál Ostrůvek",
+                "index": 5,
+                "url": "https://www.firmy.cz/detail/13362680-areal-ostruvek-rokycany.html",
+                "lines": [],
+                "lon": 13.596632957458496,
+                "source": "firm",
+                "source_id": 13362680,
+                "lat": 49.745384216308594,
+                "review_count": 0,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_QJ_r/48WSzA.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/144",
+                "name": "Sportoviště"
+            }
+        ],
+        "name": "Volný čas"
+    },
+    "_links": {
+        "similar_adverts": {
+            "href": "/cs/v2/estates?category_main_cb=1&locality_district_id=15&category_sub_cb=9&category_type_cb=1",
+            "title": "Prodej bytů 4+1 Rokycany"
+        },
+        "self": {
+            "profile": "/estates/1/doc",
+            "href": "/cs/v2/estates/3859600716",
+            "title": "Detail inzeratu"
+        },
+        "local_search": {
+            "href": "/cs/v2/estates?category_main_cb=1&locality_district_id=15&category_type_cb=1",
+            "title": "Prodej bytů Rokycany"
+        }
+    },
+    "poi_school_kindergarten": {
+        "url": "https://www.firmy.cz/Instituce-a-urady/Vzdelavaci-instituce?x=13.58262&y=49.742214&rt=adresa",
+        "values": [
+            {
+                "distance": 621.0,
+                "rating": 5,
+                "description": "Střední škola, Rokycany",
+                "walkDistance": 873,
+                "index": 1,
+                "url": "https://www.firmy.cz/detail/361373-stredni-skola-rokycany-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.588698387145996,
+                "source": "firm",
+                "source_id": 361373,
+                "time": 911,
+                "lat": 49.738243103027344,
+                "review_count": 1,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/Ua10E6.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/142",
+                "name": "Škola"
+            },
+            {
+                "distance": 703.0,
+                "rating": 5,
+                "description": "Mateřská škola HARMONIE, spol. s r.o.",
+                "walkDistance": 1087,
+                "index": 1,
+                "url": "https://www.firmy.cz/detail/677134-materska-skola-harmonie-rokycany-nove-mesto.html",
+                "lines": [],
+                "lon": 13.590324401855469,
+                "source": "firm",
+                "source_id": 677134,
+                "time": 1076,
+                "lat": 49.738311767578125,
+                "review_count": 1,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/SJZO9z.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/412",
+                "name": "Školka"
+            },
+            {
+                "distance": 743.0,
+                "rating": -1,
+                "description": "Základní umělecká škola, Rokycany, Jiráskova 181",
+                "index": 2,
+                "url": "https://www.firmy.cz/detail/360402-zakladni-umelecka-skola-rokycany-jiraskova-181-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.592891693115234,
+                "source": "firm",
+                "source_id": 360402,
+                "lat": 49.74143600463867,
+                "review_count": 0,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/pNIzPk.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/142",
+                "name": "Škola"
+            },
+            {
+                "distance": 745.0,
+                "rating": 5,
+                "description": "ZŠ T. G. Masaryka Rokycany, příspěvková organizace",
+                "index": 3,
+                "url": "https://www.firmy.cz/detail/359185-zs-t-g-masaryka-rokycany-prispevkova-organizace-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.592497825622559,
+                "source": "firm",
+                "source_id": 359185,
+                "lat": 49.744258880615234,
+                "review_count": 1,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/iXEzkq.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/142",
+                "name": "Škola"
+            },
+            {
+                "distance": 747.0,
+                "rating": 3,
+                "description": "Základní škola Rokycany, ulice Míru 64, příspěvková organizace",
+                "index": 4,
+                "url": "https://www.firmy.cz/detail/359184-zakladni-skola-rokycany-ulice-miru-64-prispevkova-organizace-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.592927932739258,
+                "source": "firm",
+                "source_id": 359184,
+                "lat": 49.74308395385742,
+                "review_count": 2,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/lnNzPs.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/142",
+                "name": "Škola"
+            }
+        ],
+        "name": "Školy a školky"
+    },
+    "logged_in": false,
+    "is_topped_today": false,
+    "map": {
+        "lat": 49.742214,
+        "type": "coordinates",
+        "lon": 13.58262,
+        "zoom": 14
+    },
+    "recommendations_data": {
+        "category_main_cb": 1,
+        "furnished": 2,
+        "object_type": 0,
+        "parking_lots": 0,
+        "price_summary_unit_cb": 1,
+        "locality_street_id": 128537,
+        "terrace": 1,
+        "balcony": 0,
+        "locality_district_id": 15,
+        "locality_ward_id": 9317,
+        "loggia": 0,
+        "category_sub_cb": 9,
+        "building_type": 2,
+        "elevator": 0,
+        "locality_gps_lat": 49.742214,
+        "basin": 0,
+        "locality_region_id": 2,
+        "category_type_cb": 1,
+        "hash_id": 3859600716,
+        "cellar": 1,
+        "object_kind": 0,
+        "locality_gps_lon": 13.58262,
+        "usable_area": 190,
+        "locality_quarter_id": -1,
+        "ownership": 1,
+        "locality_municipality_id": 1474,
+        "low_energy": 0,
+        "easy_access": 0,
+        "building_condition": 2,
+        "locality_country_id": 112,
+        "garage": 0,
+        "room_count_cb": 0,
+        "energy_efficiency_rating_cb": 7,
+        "price_summary_czk": 4490000
+    },
+    "poi_transport": {
+        "url": "https://mapy.cz/zakladni?x=13.58262&y=49.742214&z=16&q=zast%C3%A1vky",
+        "values": [
+            {
+                "distance": 31.0,
+                "rating": -1,
+                "description": "Rokycany, Plzeňská",
+                "walkDistance": 128,
+                "index": 1,
+                "url": "https://mapy.cz/zakladni?x=13.5826941754124&y=49.7419367426479&z=17&source=pubt&id=15243787",
+                "lines": [
+                    {
+                        "poi_id": 15243787,
+                        "terminus": "Cheznovice, ObÚ",
+                        "line_label": "222",
+                        "departure_direction": -1,
+                        "line_id": "470222",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15243787,
+                        "terminus": "Zbiroh, nám.",
+                        "line_label": "224",
+                        "departure_direction": -1,
+                        "line_id": "470224",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15243787,
+                        "terminus": "Rokycany, aut.nádr.",
+                        "line_label": "238",
+                        "departure_direction": 1,
+                        "line_id": "470238",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15243787,
+                        "terminus": "Rokycany, aut.nádr.",
+                        "line_label": "245",
+                        "departure_direction": 1,
+                        "line_id": "470245",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15243787,
+                        "terminus": "Rokycany, nem.",
+                        "line_label": "211",
+                        "departure_direction": 1,
+                        "line_id": "475211",
+                        "type": "bus"
+                    }
+                ],
+                "lon": 13.5826941754124,
+                "source": "pubt",
+                "source_id": 15243787,
+                "time": 136,
+                "lat": 49.7419367426479,
+                "review_count": 0,
+                "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/KgLqvG.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/198",
+                "name": "Bus MHD"
+            },
+            {
+                "distance": 32.0,
+                "rating": -1,
+                "description": "Rokycany, Plzeňská",
+                "index": 2,
+                "url": "https://mapy.cz/zakladni?x=13.5830262899643&y=49.7420903462827&z=17&source=pubt&id=15331195",
+                "lines": [
+                    {
+                        "poi_id": 15331195,
+                        "terminus": "Plzeň, Terminál Hlavní nádraží",
+                        "line_label": "222",
+                        "departure_direction": 1,
+                        "line_id": "470222",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15331195,
+                        "terminus": "Plzeň, Terminál Hlavní nádraží",
+                        "line_label": "224",
+                        "departure_direction": 1,
+                        "line_id": "470224",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15331195,
+                        "terminus": "Rokycany, aut.nádr.",
+                        "line_label": "238",
+                        "departure_direction": 1,
+                        "line_id": "470238",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15331195,
+                        "terminus": "Nevid",
+                        "line_label": "245",
+                        "departure_direction": -1,
+                        "line_id": "470245",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15331195,
+                        "terminus": "Rokycany, aut.nádr.",
+                        "line_label": "211",
+                        "departure_direction": -1,
+                        "line_id": "475211",
+                        "type": "bus"
+                    }
+                ],
+                "lon": 13.5830262899643,
+                "source": "pubt",
+                "source_id": 15331195,
+                "lat": 49.7420903462827,
+                "review_count": 0,
+                "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QM_Ko/HQeq3p.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/198",
+                "name": "Bus MHD"
+            },
+            {
+                "distance": 156.0,
+                "rating": -1,
+                "description": "Rokycany, Arbesova",
+                "index": 3,
+                "url": "https://mapy.cz/zakladni?x=13.5822288641&y=49.7408319828&z=17&source=pubt&id=15244570",
+                "lines": [],
+                "lon": 13.5822288641,
+                "source": "pubt",
+                "source_id": 15244570,
+                "lat": 49.7408319828,
+                "review_count": 0,
+                "photo_url": "bus_public_transport",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/198",
+                "name": "Bus MHD"
+            },
+            {
+                "distance": 522.0,
+                "rating": -1,
+                "description": "Rokycany, Krokova",
+                "index": 4,
+                "url": "https://mapy.cz/zakladni?x=13.581187680776&y=49.7376119856225&z=17&source=pubt&id=15245458",
+                "lines": [
+                    {
+                        "poi_id": 15245458,
+                        "terminus": "Rokycany, nem.",
+                        "line_label": "211",
+                        "departure_direction": 1,
+                        "line_id": "475211",
+                        "type": "bus"
+                    }
+                ],
+                "lon": 13.581187680776,
+                "source": "pubt",
+                "source_id": 15245458,
+                "lat": 49.7376119856225,
+                "review_count": 0,
+                "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QJ_Jt/DXwqvC.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/198",
+                "name": "Bus MHD"
+            },
+            {
+                "distance": 576.0,
+                "rating": -1,
+                "description": "Rokycany, u Jednoty",
+                "index": 5,
+                "url": "https://mapy.cz/zakladni?x=13.5846394110345&y=49.7372005189365&z=17&source=pubt&id=15777827",
+                "lines": [
+                    {
+                        "poi_id": 15777827,
+                        "terminus": "Rokycany, aut.nádr.",
+                        "line_label": "245",
+                        "departure_direction": 1,
+                        "line_id": "470245",
+                        "type": "bus"
+                    },
+                    {
+                        "poi_id": 15777827,
+                        "terminus": "Rokycany, nem.",
+                        "line_label": "211",
+                        "departure_direction": 1,
+                        "line_id": "475211",
+                        "type": "bus"
+                    }
+                ],
+                "lon": 13.5846394110345,
+                "source": "pubt",
+                "source_id": 15777827,
+                "lat": 49.7372005189365,
+                "review_count": 0,
+                "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/mLqq1u.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/198",
+                "name": "Bus MHD"
+            }
+        ],
+        "name": "Doprava"
+    },
+    "price_czk": {
+        "unit": "",
+        "name": "Celková cena",
+        "value": "4 490 000",
+        "value_raw": 4490000
+    },
+    "rus": false,
+    "name": {
+        "name": "Název",
+        "value": "Prodej bytu 4+1 190 m²"
+    },
+    "poi_grocery": {
+        "url": "https://www.firmy.cz/Obchody-a-obchudky/Prodejci-potravin?x=13.58262&y=49.742214&rt=adresa",
+        "values": [
+            {
+                "distance": 261.0,
+                "rating": 3,
+                "description": "Penny Market",
+                "index": 1,
+                "url": "https://www.firmy.cz/detail/207776-penny-market-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.58581256866455,
+                "source": "firm",
+                "source_id": 207776,
+                "lat": 49.743324279785156,
+                "review_count": 5,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_gV_p/bKfGDZ.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/423",
+                "name": "Večerka"
+            },
+            {
+                "distance": 423.0,
+                "rating": 4,
+                "description": "Lidl",
+                "index": 2,
+                "url": "https://www.firmy.cz/detail/1900292-lidl-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.588164329528809,
+                "source": "firm",
+                "source_id": 1900292,
+                "lat": 49.74349594116211,
+                "review_count": 16,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_gX_k/nseCb.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/423",
+                "name": "Večerka"
+            },
+            {
+                "distance": 619.0,
+                "rating": 5,
+                "description": "COOP",
+                "index": 3,
+                "url": "https://www.firmy.cz/detail/2122237-coop-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.583661079406738,
+                "source": "firm",
+                "source_id": 2122237,
+                "lat": 49.7366828918457,
+                "review_count": 3,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/pL0O25.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/423",
+                "name": "Večerka"
+            },
+            {
+                "distance": 713.0,
+                "rating": -1,
+                "description": "ESO Market - Potraviny U Heroldů",
+                "index": 4,
+                "url": "https://www.firmy.cz/detail/13219581-eso-market-potraviny-u-heroldu-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.592462539672852,
+                "source": "firm",
+                "source_id": 13219581,
+                "lat": 49.741397857666016,
+                "review_count": 0,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_gX_t/URhTLZ.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/423",
+                "name": "Večerka"
+            },
+            {
+                "distance": 842.0,
+                "rating": 2,
+                "description": "COOP",
+                "index": 5,
+                "url": "https://www.firmy.cz/detail/2489438-coop-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.594282150268555,
+                "source": "firm",
+                "source_id": 2489438,
+                "lat": 49.742958068847656,
+                "review_count": 3,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/low0Yp.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/423",
+                "name": "Večerka"
+            }
+        ],
+        "name": "Potraviny"
+    },
+    "poi_restaurant": {
+        "url": "https://www.firmy.cz/Restauracni-a-pohostinske-sluzby?x=13.58262&y=49.742214&rt=adresa",
+        "values": [
+            {
+                "distance": 471.0,
+                "rating": 5,
+                "description": "Restaurace u Kosnarů",
+                "walkDistance": 747,
+                "index": 1,
+                "url": "https://www.firmy.cz/detail/13118768-restaurace-u-kosnaru-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.586099624633789,
+                "source": "firm",
+                "source_id": 13118768,
+                "time": 784,
+                "lat": 49.73862838745117,
+                "review_count": 6,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_QL_u/zlWZjb.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/133",
+                "name": "Restaurace"
+            },
+            {
+                "distance": 500.0,
+                "rating": 4,
+                "description": "Minipivovar & pivnice U Stočesů",
+                "index": 2,
+                "url": "https://www.firmy.cz/detail/2582746-minipivovar-pivnice-u-stocesu-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.585152626037598,
+                "source": "firm",
+                "source_id": 2582746,
+                "lat": 49.7380256652832,
+                "review_count": 11,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_H_D/6qk0JW.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/133",
+                "name": "Restaurace"
+            },
+            {
+                "distance": 621.0,
+                "rating": 2,
+                "description": "Restaurace Na Střelnici",
+                "index": 3,
+                "url": "https://www.firmy.cz/detail/13434534-restaurace-na-strelnici-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.591150283813477,
+                "source": "firm",
+                "source_id": 13434534,
+                "lat": 49.743080139160156,
+                "review_count": 5,
+                "photo_url": "https://d18-a.sdn.cz/d_18/c_img_QL_J9/yggpPH.jpeg?fl=res,300,300,3|shr,,20|jpg,90",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/133",
+                "name": "Restaurace"
+            },
+            {
+                "distance": 659.0,
+                "rating": 5,
+                "description": "Cukrárna Jeřabinka",
+                "index": 1,
+                "url": "https://www.firmy.cz/detail/13344830-cukrarna-jerabinka-rokycany-plzenske-predmesti.html",
+                "lines": [],
+                "lon": 13.590177536010742,
+                "source": "firm",
+                "source_id": 13344830,
+                "lat": 49.738853454589844,
+                "review_count": 4,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_gV_v/KYgYkT.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/38",
+                "name": "Cukrárna"
+            },
+            {
+                "distance": 742.0,
+                "rating": 5,
+                "description": "Restaurace Corso",
+                "index": 4,
+                "url": "https://www.firmy.cz/detail/327883-restaurace-corso-rokycany-stred.html",
+                "lines": [],
+                "lon": 13.59294319152832,
+                "source": "firm",
+                "source_id": 327883,
+                "lat": 49.74203109741211,
+                "review_count": 5,
+                "photo_url": "//d48-a.sdn.cz/d_48/c_img_G_C/XALh8g.jpeg?fl=res,{width},{height},3",
+                "imgUrl": "https://api.mapy.cz/poiimg/icon/133",
+                "name": "Restaurace"
+            }
+        ],
+        "name": "Restaurace"
+    },
+    "items": [
+        {
+            "negotiation": false,
+            "name": "Celková cena",
+            "notes": [],
+            "value": "4 490 000",
+            "currency": "Kč",
+            "type": "price_czk",
+            "unit": "za nemovitost"
+        },
+        {
+            "type": "string",
+            "name": "Poznámka k ceně",
+            "value": "Včetně provize, právního a hypotéčního servisu. V případě více zájemců bude nemovitost prodána nejlepší nabídce dle výběru prodávajících."
+        },
+        {
+            "type": "string",
+            "name": "ID zakázky",
+            "value": "0023-NP07724"
+        },
+        {
+            "type": "edited",
+            "name": "Aktualizace",
+            "value": "Dnes",
+            "topped": false
+        },
+        {
+            "type": "string",
+            "name": "Stavba",
+            "value": "Cihlová"
+        },
+        {
+            "type": "string",
+            "name": "Stav objektu",
+            "value": "Dobrý"
+        },
+        {
+            "type": "string",
+            "name": "Vlastnictví",
+            "value": "Osobní"
+        },
+        {
+            "type": "string",
+            "name": "Umístění objektu",
+            "value": "Okraj obce"
+        },
+        {
+            "type": "string",
+            "name": "Podlaží",
+            "value": "2. podlaží z celkem 3"
+        },
+        {
+            "unit": "m2",
+            "type": "area",
+            "name": "Užitná plocha",
+            "value": "190"
+        },
+        {
+            "unit": "m2",
+            "type": "area",
+            "name": "Plocha podlahová",
+            "value": "117"
+        },
+        {
+            "unit": "m2",
+            "type": "area",
+            "name": "Terasa",
+            "value": "57"
+        },
+        {
+            "unit": "m2",
+            "type": "area",
+            "name": "Sklep",
+            "value": "15"
+        },
+        {
+            "type": "set",
+            "name": "Voda",
+            "value": [
+                {
+                    "name": "Voda",
+                    "value": "Dálkový vodovod"
+                }
+            ]
+        },
+        {
+            "type": "set",
+            "name": "Topení",
+            "value": [
+                {
+                    "name": "Topení",
+                    "value": "Lokální tuhá paliva"
+                },
+                {
+                    "name": "Topení",
+                    "value": "Ústřední plynové"
+                }
+            ]
+        },
+        {
+            "type": "set",
+            "name": "Plyn",
+            "value": [
+                {
+                    "name": "Plyn",
+                    "value": "Plynovod"
+                }
+            ]
+        },
+        {
+            "type": "set",
+            "name": "Odpad",
+            "value": [
+                {
+                    "name": "Odpad",
+                    "value": "Veřejná kanalizace"
+                }
+            ]
+        },
+        {
+            "type": "set",
+            "name": "Telekomunikace",
+            "value": [
+                {
+                    "name": "Telekomunikace",
+                    "value": "Internet"
+                }
+            ]
+        },
+        {
+            "type": "set",
+            "name": "Elektřina",
+            "value": [
+                {
+                    "name": "Elektřina",
+                    "value": "230V"
+                }
+            ]
+        },
+        {
+            "type": "set",
+            "name": "Doprava",
+            "value": [
+                {
+                    "name": "Doprava",
+                    "value": "Vlak"
+                },
+                {
+                    "name": "Doprava",
+                    "value": "Dálnice"
+                },
+                {
+                    "name": "Doprava",
+                    "value": "MHD"
+                },
+                {
+                    "name": "Doprava",
+                    "value": "Autobus"
+                }
+            ]
+        },
+        {
+            "value_type": "G",
+            "type": "energy_efficiency_rating",
+            "name": "Energetická náročnost budovy",
+            "value": "Třída G - Mimořádně nehospodárná č. 264/2020 Sb. podle vyhlášky"
+        },
+        {
+            "type": "boolean",
+            "name": "Vybavení",
+            "value": false
+        }
+    ],
+    "is_topped": false,
+    "locality_district_id": 15
+}

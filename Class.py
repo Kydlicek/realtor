@@ -28,7 +28,59 @@ class Database:
     def insert_many(self,docs):
         self.q.insert_many(docs)
     
+    def retrieve_all(self):
+        l = []
+        a = self.q.find()
+        for el in a:
+            l.append(el)
+        return l
+
     def find_by_param(self,param):
         a = self.q.find(param)
         for i in a:
             print(i)
+
+class FullEstateLisitng:
+    def __init__(self,data):
+        self.data = data
+
+    #     #long description
+    #     self.description = self.data['text']['value']
+
+    #     #seo quering for target API
+    #     self.seo = data['seo']
+
+    #     #short important description
+    #     self.meta_description = data['meta_description']
+        
+    #     #broker info etc ....
+    #     self.x = data['_embedded']
+
+    #     #images list of lists
+    #     self.images = self.make_images()
+        
+    #     #geolocation
+    #     self.coordinates = self.get_coordinates()
+        
+    #     #query data
+    #     self.recommendations_data = data['recommendations_data']
+        
+    #     #value with sell property type size in kk + m2
+    #     self.name = data['name']['value']
+
+    #     #cena, poznamka k cene, stav objektu, typ vlastnictvi,plocha topeni, energeticka narocnost, usefull for more info about property
+    #     self.items = data['items']
+
+    #     #locality_district_id, filtering value
+    #     self.locality_district_id = data['locality_district_id']
+
+        self.dic = {'data':self.data}
+
+    # def get_coordinates(self):
+    #     loc = self.data['map']
+    #     dic = {'coordinates':[loc['lon'],loc['lat']]}
+    #     return dic
+    
+    # def make_images(self):      11111111111111  
+    #     #includes list of images needs filtering
+    #     self.x['images']
