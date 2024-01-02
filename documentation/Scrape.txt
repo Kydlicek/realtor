@@ -1,0 +1,10 @@
+# category_main = 1 Byty, 2 Domy, 3 Pozemky, 4 Komercni, 5 Ostatni
+category_main = 1
+# category_type = 1 Prodej, 2 Pronajem
+category_type = 2
+# page_num = 1 = cislo stranky
+page_num = 1
+# per_page = 60 = pocet inzeratu na strance
+per_page = 60
+# aktualni cas v milisekundach
+tms = tm.time()
