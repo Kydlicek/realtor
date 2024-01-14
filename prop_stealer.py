@@ -2,7 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from DB import Database
-from Listing import Listing
+from S_listing import Listing
+
 
 def get_page(url):
     res = requests.get(url)
@@ -18,12 +19,19 @@ active_db = Database("rentals_listings")
 url_db = Database('flat_rentals_urls')
 urls = url_db.retrieve_all()
 active_list = []
-i = 0
+
+url = 'https://www.sreality.cz/api/cs/v2/estates/2702300492'
+
+p = get_page(url)
+l = Listing(p)
+l.printer()
+
+# for url in urls:
+#     print(url['url'])
+#     p = get_page(url['url'])
+#     if p != None:
+#         l = Listing(p)
+
+#         l.printer()
 
 
-for url in urls:
-    p = get_page(url["url"])
-    listing = Listing(p)
-    active_db.add_doc(listing.dic)
-    i += 1
-    print(f"Inserted {i} documents proccesed out of {len(urls)}")

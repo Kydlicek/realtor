@@ -1,35 +1,28 @@
 class Listing:
-    def __init__(self, data):
+    def __init__(self,data):
         # Listing ID
         self.listing_id = data.get('hash_id', None)
-
+        
         #type garage, field building apartment, transaction type: rent, sell, transfer etc, 
         self.seo = data.get('seo', None)
         
         # Property description
-        self.description = data.get('description', None)
-        self.meta_description = data.get('meta_description', None)
+        self.description = data['text']['value']
+        self.meta_description = data['meta_description']
+        
         
         # Pricing
         self.price = {
-            'rent': data.get('price_summary_czk', None),
+            'rent': data["price_czk"]['value_raw'],
             'deposit': None,  # Assuming deposit information is not provided
             'services_price': None,  # Assuming services_price information is not provided
             'energy_price': None,  # Assuming energy_price information is not provided
-            'rk': None, # Assuming rk information is not provided
+            'rk': None
         }
-        
-        # Rooms information
-        self.rooms = {
-            'parking_places': None,  # Assuming parking_places information is not provided
-            'size': None,  # Assuming size information is not provided
-            'kk_size': None,  # Assuming kk_size information is not provided
-        }
-        # Information about Heating, building material etc
-        self.prop_info = None
 
-        # Furniture information
-        self.key_features = data.get('furniture', None)
+       # Information about Heating, building material etc
+        self.prop_info = data['items']
+        
         
         # Location information
         self.location = {
@@ -38,17 +31,17 @@ class Listing:
             'street_number': None,  # Assuming street_number information is not provided
             'zip': None,  # Assuming zip information is not provided
             'gps': {
-                'lat': data.get('locality_gps_lat', None),
-                'lon': data.get('locality_gps_lon', None),
+                'lat': data['map']['lat'],
+                'lon': data['map']['lon'],
             },
         }
 
         #external url
-        self.url = None
+        self.url = f'https://www.sreality.cz/detail/x/x/x/x/{self.listing_id}'
         
         # Images
         self.images = data.get('images', [])
-        
+
         # Renting details
         self.renting_details = {
             'rent_date_available': data.get('rent_date_avaiable', None),
@@ -59,7 +52,7 @@ class Listing:
             'smoking': data.get('smoking', None),
             'rental_period_max': data.get('rental_period_max', None),
         }
-        
+
         # Landlord information
         self.landlord = {
             'name': data.get('landlord_name', None),
@@ -67,7 +60,15 @@ class Listing:
             'email': data.get('landlord_email', None),
         }
 
-        # dates of creation
-        self.time_data = data.get('time_data', None)
-
+    def printer(self):
+        print(f'description: {self.description[0:30]}')
+        print(f'm_description: {self.meta_description}')
+        print(f'id{self.listing_id}')
+        print(self.seo)
+        print(self.price)
         
+        print(self.location)
+        print(self.url)
+        print(self.renting_details)
+        print(self.landlord)
+        print(self.prop_info)
