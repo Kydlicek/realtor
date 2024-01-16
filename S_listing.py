@@ -1,7 +1,6 @@
 class Listing:
     def __init__(self,data):
-        # Listing ID
-        self.listing_id = data.get('hash_id', None)
+        self.hash_id = data['recommendations_data']['hash']
         
         #type garage, field building apartment, transaction type: rent, sell, transfer etc, 
         self.seo = data.get('seo', None)
@@ -37,14 +36,14 @@ class Listing:
         }
 
         #external url
-        self.url = f'https://www.sreality.cz/detail/x/x/x/x/{self.listing_id}'
+        self.url = f'https://www.sreality.cz/detail/x/x/x/x/{self.hash_id}'
         
         # Images
         self.images = data.get('images', [])
 
         # Renting details
         self.renting_details = {
-            'rent_date_available': data.get('rent_date_avaiable', None),
+            'rent_date_available': None,
             'furnished': data.get('furnished', None),
             'rental_period_min': data.get('rental_period_min', None),
             'pets': data.get('pets', None),
