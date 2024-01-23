@@ -3,6 +3,8 @@ class Listing:
         self.hash_id = data['recommendations_data']['hash_id']
         self.energy_mark = ''
         self.furnished = ''
+        self.services_price = ''
+        self.add_price_info = ''
         
         #type garage, field building apartment, transaction type: rent, sell, transfer etc, 
         self.seo = data.get('seo', None)
@@ -10,16 +12,6 @@ class Listing:
         # Property description
         self.description = data['text']['value']
         self.meta_description = data['meta_description']
-        
-        
-        # Pricing
-        self.price = {
-            'rent': data["price_czk"]['value_raw'],
-            'deposit': None,  # Assuming deposit information is not provided
-            'services_price': None,  # Assuming services_price information is not provided
-            'energy_price': None,  # Assuming energy_price information is not provided
-            'rk': None
-        }
 
        # Information about Heating, building material etc
         self.prop_info = data['items']
@@ -42,7 +34,13 @@ class Listing:
 
             #datum nastehovani
             elif el['name'] == 'Datum nastěhování':
-                self.move_in_date = el['value']    
+                self.move_in_date = el['value']   
+
+            elif el['name'] == 'Náklady na bydlení':
+                self.services_price = el['value'] 
+            
+            elif el['name'] == 'Poznámka k ceně':
+                self.add_price_info = el['value']
             
             #energeticka trida
             elif el['name'] == 'Energetická náročnost budovy':
@@ -58,7 +56,15 @@ class Listing:
 
 
         
-        
+        # Pricing
+        self.price = {
+            'rent': data["price_czk"]['value_raw'],
+            'deposit': None,  # Assuming deposit information is not provided
+            'services_price': self.services_price ,  # Assuming services_price information is not provided
+            'energy_price': None,  # Assuming energy_price information is not provided
+            'rk': None,
+            'add':self.add_price_info
+        }
             # Location information
         self.location = {
             'city': None,  # Assuming city information is not provided
@@ -98,9 +104,8 @@ class Listing:
     def printer(self):
         print(f'description: {self.description[0:30]}')
         print(f'm_description: {self.meta_description}')
-        print(self.seo)
         print(self.price)
         print(self.landlord)
-        print(self.prop_info)
         print(self.renting_details)
         print(self.last_edit,self.material,self.ownership,self.level,self.area,self.move_in_date, self.furnished,self.energy_mark)
+        #print(self.prop_info)
