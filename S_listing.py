@@ -73,16 +73,18 @@ class Listing:
         }
         
         # Location information
+        address = data['locality']['value'].split(',')
+        city = address[1].replace(' ', '').split('-')
         self.location = {
-            'city': None,  # Assuming city information is not provided
-            'street': None,  # Assuming street information is not provided
-            'street_number': None,  # Assuming street_number information is not provided
-            'zip': None,  # Assuming zip information is not provided
+            'city': city[0],
+            'city_part': city[1],
+            'street': address[0],
             'gps': {
                 'lat': data['map']['lat'],
                 'lon': data['map']['lon'],
             },
         }
+        print(self.location)
 
         #external url
         self.url = f'https://www.sreality.cz/detail/x/x/x/x/{self.hash_id}'
