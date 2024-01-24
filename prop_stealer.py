@@ -27,6 +27,6 @@ for url in urls:
     if p != None:
         l = Listing(p)
 
-        l.printer()
+        print(l.get_dict())
 
 

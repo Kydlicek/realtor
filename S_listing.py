@@ -5,17 +5,9 @@ class Listing:
         self.furnished = ''
         self.services_price = ''
         self.add_price_info = ''
-        
-        #type garage, field building apartment, transaction type: rent, sell, transfer etc, 
-        self.seo = data.get('seo', None)
-        
-        # Property description
-        self.description = data['text']['value']
-        self.meta_description = data['meta_description']
 
        # Information about Heating, building material etc
-        self.prop_info = data['items']
-        for el in self.prop_info:
+        for el in data['items']:
             if el['name'] == 'Aktualizace':
                 self.last_edit=el['value']
             
@@ -30,7 +22,7 @@ class Listing:
 
             #uzitna plocha
             elif el['name'] == 'Užitná plocha':
-                self.area = el['value']
+                self.size_m2 = el['value']
 
             #datum nastehovani
             elif el['name'] == 'Datum nastěhování':
@@ -48,15 +40,29 @@ class Listing:
 
             elif data['recommendations_data']["energy_efficiency_rating_cb"]:
                 self.energy_mark = data['recommendations_data']["energy_efficiency_rating_cb"]
-            
-                
+
             #true == vybaveno, false == nevybaveno
             elif el['name'] == 'Vybavení':
                 self.furnished = el['value']
 
+        self.prop_info = {
+            'last_update':self.last_edit,
+            'material': self.material,
+            'ownership': self.ownership,
+            'prop_level': self.level,
+            'size_m2': self.size_m2,
+            'energy_mark': self.energy_mark,
+            'furnished': self.furnished
+        }
 
+        #type garage, field building apartment, transaction type: rent, sell, transfer etc, 
+        self.seo = data['seo']
         
-        # Pricing
+        # Property descriptions
+        self.description = data['text']['value']
+        self.meta_description = data['meta_description']
+
+        # Pricing info
         self.price = {
             'rent': data["price_czk"]['value_raw'],
             'deposit': None,  # Assuming deposit information is not provided
@@ -65,7 +71,8 @@ class Listing:
             'rk': None,
             'add':self.add_price_info
         }
-            # Location information
+        
+        # Location information
         self.location = {
             'city': None,  # Assuming city information is not provided
             'street': None,  # Assuming street information is not provided
@@ -80,13 +87,15 @@ class Listing:
         #external url
         self.url = f'https://www.sreality.cz/detail/x/x/x/x/{self.hash_id}'
         
-        # Images
-        self.images = data.get('images', [])
+        #Images
+        self.images = []
+
+        for el in data['_embedded']['images']:
+            self.images.append(el['_links']['self']['href'])
 
         # Renting details
         self.renting_details = {
             'rent_date_available': self.move_in_date,
-            'furnished': self.furnished,
             'rental_period_min': data.get('rental_period_min', None),
             'pets': data.get('pets', None),
             'max_tenants': data.get('max_tenants', None),
@@ -96,16 +105,23 @@ class Listing:
 
         # Landlord information
         self.landlord = {
-            'name': data.get('landlord_name', None),
-            'phone': data.get('landlord_phone', None),
-            'email': data.get('landlord_email', None),
+            'name': data['_embedded']['seller']['user_name'],
+            'phone':f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
+            'email': data['_embedded']['seller']['_embedded']['premise']['email'],
         }
 
-    def printer(self):
-        print(f'description: {self.description[0:30]}')
-        print(f'm_description: {self.meta_description}')
-        print(self.price)
-        print(self.landlord)
-        print(self.renting_details)
-        print(self.last_edit,self.material,self.ownership,self.level,self.area,self.move_in_date, self.furnished,self.energy_mark)
-        #print(self.prop_info)
+    def get_dict(self):
+        dic = {
+            'seo': self.seo,
+            'description':self.description,
+            'meta_description': self.meta_description,
+            'prop_info': self.prop_info,
+            'price':self.price,
+            'location':self.location,
+            'renting_details':self.renting_details,
+            'landlord':self.landlord,
+            'url':self.url,
+            'images':self.images,
+        }
+        return dic
+ 
