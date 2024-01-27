@@ -26,7 +26,9 @@ for url in urls:
     p = get_page(url['url'])
     if p != None:
         l = Listing(p)
+        dic = l.get_dict()
+        print(dic['price'])
 
-        print(l.get_dict())
+        #print(l.get_dict())
 
 

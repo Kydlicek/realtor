@@ -72,19 +72,24 @@ class Listing:
             'add':self.add_price_info
         }
         
+        
         # Location information
         address = data['locality']['value'].split(',')
-        city = address[1].replace(' ', '').split('-')
+        city = address[1].split('-')
+        if len(city) == 1:
+            city_part = None
+        else:
+            city_part = city[1].strip()
+            
         self.location = {
-            'city': city[0],
-            'city_part': city[1],
+            'city': city[0].strip(),
+            'city_part': city_part,
             'street': address[0],
             'gps': {
                 'lat': data['map']['lat'],
                 'lon': data['map']['lon'],
             },
         }
-        print(self.location)
 
         #external url
         self.url = f'https://www.sreality.cz/detail/x/x/x/x/{self.hash_id}'
@@ -106,11 +111,14 @@ class Listing:
         }
 
         # Landlord information
-        self.landlord = {
-            'name': data['_embedded']['seller']['user_name'],
-            'phone':f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
-            'email': data['_embedded']['seller']['_embedded']['premise']['email'],
-        }
+        
+        if data['_embedded']['seller']:
+            self.landlord = {
+                'name': data['_embedded']['seller']['user_name'],
+                'phone':f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
+                'email': data['_embedded']['seller']['_embedded']['premise']['email'],}
+        else:
+                self.landlord = {'name': None, 'phone': None, 'email': None}
 
     def get_dict(self):
         dic = {
