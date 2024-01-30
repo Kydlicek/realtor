@@ -33,16 +33,17 @@ class Scrape:
         self.tms = tm.time()
         self.url = f"https://www.sreality.cz/api/cs/v2/estates?category_main_cb={category_main}&category_type_cb={category_type}&no_auction=1&no_shares=1&page={self.page_num}&per_page={self.per_page}&tms={self.tms}"
         self.all_props = []
-        self.res_lenght = self.get_page()["result_size"]
+        self.res_lenght = self.get_page(self.url)["result_size"]
 
-    def get_page(self):
+    def get_page(self,url):
         """
         Sends a GET request to the sreality.cz API and returns the parsed response.
 
         Returns:
         - dict: Parsed JSON response from the API.
         """
-        res = requests.get(self.url)
+        header = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ','Referer':url,}
+        res = requests.get(url,header)
         if res.status_code == 200:
             soup = BeautifulSoup(res.content, "html.parser")
             soup = json.loads(soup.text)
@@ -61,7 +62,7 @@ class Scrape:
         """
         for i in range(start_page, end_page):
             self.page_num = i
-            soup = self.get_page()
+            soup = self.get_page(self.url)
             props = soup["_embedded"]["estates"]
 
             # page return 60 listings > loop iteration to get all listings on the page
