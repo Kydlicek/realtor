@@ -66,8 +66,8 @@ class Listing:
         self.price = {
             'rent': data["price_czk"]['value_raw'],
             'deposit': None,  # Assuming deposit information is not provided
-            'services_price': self.services_price ,  # Assuming services_price information is not provided
-            'energy_price': None,  # Assuming energy_price information is not provided
+            'services': self.services_price ,  # Assuming services_price information is not provided
+            'energy': None,
             'rk': None,
             'add':self.add_price_info
         }
@@ -112,12 +112,13 @@ class Listing:
 
         # Landlord information
         
-        if data['_embedded']['seller']:
+        
+        try: 
             self.landlord = {
                 'name': data['_embedded']['seller']['user_name'],
                 'phone':f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
                 'email': data['_embedded']['seller']['_embedded']['premise']['email'],}
-        else:
+        except:
                 self.landlord = {'name': None, 'phone': None, 'email': None}
 
     def get_dict(self):
