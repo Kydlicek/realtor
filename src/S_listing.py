@@ -1,52 +1,54 @@
 class Listing:
-    def __init__(self,data):
-        self.hash_id = data['recommendations_data']['hash_id']
+    def __init__(self, data):
+        self.hash_id = data['recommendations_data'].get('hash_id', '')
         self.energy_mark = ''
         self.furnished = ''
         self.services_price = ''
         self.add_price_info = ''
+        self.last_edit = ''
+        self.material = ''
+        self.ownership = ''
+        self.level = ''
+        self.size_m2 = ''
+        self.move_in_date = ''
 
-       # Information about Heating, building material etc
+        # Information about Heating, building material etc
         for el in data['items']:
             if el['name'] == 'Aktualizace':
-                self.last_edit=el['value']
-            
+                self.last_edit = el.get('value', '')
+
             elif el['name'] == 'Stavba':
-                self.material = el['value']
-            
+                self.material = el.get('value', '')
+
             elif el['name'] == 'Vlastnictví':
-                self.ownership = el['value']
+                self.ownership = el.get('value', '')
 
             elif el['name'] == 'Podlaží':
-                self.level = el['value']
+                self.level = el.get('value', '')
 
-            #uzitna plocha
             elif el['name'] == 'Užitná plocha':
-                self.size_m2 = el['value']
+                self.size_m2 = el.get('value', '')
 
-            #datum nastehovani
             elif el['name'] == 'Datum nastěhování':
-                self.move_in_date = el['value']   
+                self.move_in_date = el.get('value', '')
 
             elif el['name'] == 'Náklady na bydlení':
-                self.services_price = el['value'] 
-            
+                self.services_price = el.get('value', '')
+
             elif el['name'] == 'Poznámka k ceně':
-                self.add_price_info = el['value']
-            
-            #energeticka trida
+                self.add_price_info = el.get('value', '')
+
             elif el['name'] == 'Energetická náročnost budovy':
-                self.energy_mark = el['value_type']
+                self.energy_mark = el.get('value_type', '')
 
-            elif data['recommendations_data']["energy_efficiency_rating_cb"]:
-                self.energy_mark = data['recommendations_data']["energy_efficiency_rating_cb"]
+            if data['recommendations_data'].get("energy_efficiency_rating_cb"):
+                self.energy_mark = data['recommendations_data'].get("energy_efficiency_rating_cb", '')
 
-            #true == vybaveno, false == nevybaveno
-            elif el['name'] == 'Vybavení':
-                self.furnished = el['value']
+            if el['name'] == 'Vybavení':
+                self.furnished = el.get('value', '')
 
         self.prop_info = {
-            'last_update':self.last_edit,
+            'last_update': self.last_edit,
             'material': self.material,
             'ownership': self.ownership,
             'prop_level': self.level,
@@ -55,52 +57,46 @@ class Listing:
             'furnished': self.furnished
         }
 
-        #type garage, field building apartment, transaction type: rent, sell, transfer etc, 
-        self.seo = data['seo']
-        
-        # Property descriptions
-        self.description = data['text']['value']
-        self.meta_description = data['meta_description']
+        self.seo = data.get('seo', '')
+        self.description = data.get('text', {}).get('value', '')
+        self.meta_description = data.get('meta_description', '')
 
-        # Pricing info
-        self.price = {
-            'rent': data["price_czk"]['value_raw'],
-            'deposit': None,  # Assuming deposit information is not provided
-            'services': self.services_price ,  # Assuming services_price information is not provided
-            'energy': None,
-            'rk': None,
-            'add':self.add_price_info
-        }
-        
-        
-        # Location information
-        address = data['locality']['value'].split(',')
-        city = address[1].split('-')
-        if len(city) == 1:
-            city_part = None
-        else:
-            city_part = city[1].strip()
-            
+        try:
+            self.price = {
+                'rent': data['price_czk']['value_raw'],
+                'deposit': None,
+                'services': self.services_price,
+                'energy': None,
+                'rk': None,
+                'add': self.add_price_info
+            }
+        except KeyError:
+            self.price = {
+                'rent': None,
+                'deposit': None,
+                'services': None,
+                'energy': None,
+                'rk': None,
+                'add': None
+            }
+
+        address = data.get('locality', {}).get('value', '').split(',')
+        city = address[1].split('-') if len(address) > 1 else [address[0], '']
+        city_part = city[1].strip() if len(city) > 1 else None
+
         self.location = {
             'city': city[0].strip(),
             'city_part': city_part,
-            'street': address[0],
+            'street': address[0] if address else '',
             'gps': {
-                'lat': data['map']['lat'],
-                'lon': data['map']['lon'],
+                'lat': data.get('map', {}).get('lat', None),
+                'lon': data.get('map', {}).get('lon', None),
             },
         }
 
-        #external url
         self.url = f'https://www.sreality.cz/detail/x/x/x/x/{self.hash_id}'
-        
-        #Images
-        self.images = []
+        self.images = [img['_links']['self']['href'] for img in data.get('_embedded', {}).get('images', [])]
 
-        for el in data['_embedded']['images']:
-            self.images.append(el['_links']['self']['href'])
-
-        # Renting details
         self.renting_details = {
             'rent_date_available': self.move_in_date,
             'rental_period_min': data.get('rental_period_min', None),
@@ -110,29 +106,25 @@ class Listing:
             'rental_period_max': data.get('rental_period_max', None),
         }
 
-        # Landlord information
-        
-        
-        try: 
+        try:
             self.landlord = {
                 'name': data['_embedded']['seller']['user_name'],
-                'phone':f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
-                'email': data['_embedded']['seller']['_embedded']['premise']['email'],}
-        except:
-                self.landlord = {'name': None, 'phone': None, 'email': None}
+                'phone': f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
+                'email': data['_embedded']['seller']['_embedded']['premise']['email'],
+            }
+        except KeyError:
+            self.landlord = {'name': None, 'phone': None, 'email': None}
 
     def get_dict(self):
-        dic = {
+        return {
             'seo': self.seo,
-            'description':self.description,
+            'description': self.description,
             'meta_description': self.meta_description,
             'prop_info': self.prop_info,
-            'price':self.price,
-            'location':self.location,
-            'renting_details':self.renting_details,
-            'landlord':self.landlord,
-            'url':self.url,
-            'images':self.images,
+            'price': self.price,
+            'location': self.location,
+            'renting_details': self.renting_details,
+            'landlord': self.landlord,
+            'url': self.url,
+            'images': self.images,
         }
-        return dic
- 

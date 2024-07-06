@@ -9,7 +9,7 @@ import requests
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class Scrape:
+class Scraper:
     """
     Class for scraping real estate listings from the sreality.cz website.
     """
@@ -25,32 +25,41 @@ class Scrape:
         """
         self.category_main = category_main
         self.category_type = category_type
-        # page_num = 1 = cislo stranky
         self.page_num = 1
-        # per_page = 60 = pocet inzeratu na strance
         self.per_page = 60
         self.db = Database(db_collection_name)
-        self.tms = tm.time()
-        self.url = f"https://www.sreality.cz/api/cs/v2/estates?category_main_cb={category_main}&category_type_cb={category_type}&no_auction=1&no_shares=1&page={self.page_num}&per_page={self.per_page}&tms={self.tms}"
         self.all_props = []
+        self.update_url()
         self.res_lenght = self.get_page(self.url)["result_size"]
 
-    def get_page(self,url):
+    def update_url(self):
+        """
+        Update the URL with the current page number and timestamp.
+        """
+        self.tms = tm.time()
+        self.url = (f"https://www.sreality.cz/api/cs/v2/estates?category_main_cb={self.category_main}"
+                    f"&category_type_cb={self.category_type}&no_auction=1&no_shares=1"
+                    f"&page={self.page_num}&per_page={self.per_page}&tms={self.tms}")
+
+    def get_page(self, url):
         """
         Sends a GET request to the sreality.cz API and returns the parsed response.
+
+        Parameters:
+        - url (str): The URL to send the GET request to.
 
         Returns:
         - dict: Parsed JSON response from the API.
         """
-        header = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ','Referer':url,}
-        res = requests.get(url,header)
-        if res.status_code == 200:
-            soup = BeautifulSoup(res.content, "html.parser")
-            soup = json.loads(soup.text)
-            return soup
-        else:
-            logger.error(f"Error {res.status_code}")
-            raise Exception(f"Error {res.status_code}")
+        header = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                  'Referer': url}
+        try:
+            res = requests.get(url, headers=header)
+            res.raise_for_status()
+            return res.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request failed: {e}")
+            return None
 
     def scrape(self, start_page, end_page):
         """
@@ -62,18 +71,31 @@ class Scrape:
         """
         for i in range(start_page, end_page):
             self.page_num = i
+            self.update_url()
             soup = self.get_page(self.url)
+            if not soup:
+                continue
+
             props = soup["_embedded"]["estates"]
 
-            # page return 60 listings > loop iteration to get all listings on the page
             for prop in props:
                 prop = self.make_listing(prop)
-                self.all_props.append(prop)
+                if self.prop_exists(prop['hash_id']):
+                    pass
+                else:
+                    self.all_props.append(prop)
             logger.info(
-                f"Scraped page {self.page_num} of {end_page} || Listings: {len(self.all_props)}"
+                f"Scraped page {self.page_num} of {end_page - 1} || Listings: {len(self.all_props)}"
             )
+    def prop_exists(self,hash_id):
+        if self.db.find_by_param({"hash_id":hash_id}):
+            return True
+        else:
+            return False
+            
 
-    def make_listing(self, data):
+        
+    def make_listing(self, data):   
         """
         Create a simplified real estate listing from the original data.
 
@@ -86,7 +108,7 @@ class Scrape:
         seo = data["seo"]
         hash_id = data["hash_id"]
         url = f"https://www.sreality.cz/api/cs/v2/estates/{hash_id}"
-        return {"seo": seo, "hash_id": hash_id, "url": url}
+        return {"seo": seo, "hash_id": hash_id, "url": url, "status":"scraped"}
 
     def scrape_all(self):
         """
@@ -99,10 +121,13 @@ class Scrape:
         """
         Inserts all scraped properties into the database.
         """
-        self.db.insert_many(self.all_props)
-        logger.info(f"Inserted {len(self.all_props)} documents into the database")
+        if self.all_props:
+            self.db.insert_many(self.all_props)
+            logger.info(f"Inserted {len(self.all_props)} documents into the database")
+        else:
+            logger.info("No properties to insert into the database")
 
 if __name__ == "__main__":
-    flat_rentals = Scrape(1, 2, 'flat_rentals_urls')
-    flat_rentals.scrape(1, 5)
+    flat_rentals = Scraper(1, 2, 'flat_rentals_urls')
+    flat_rentals.scrape(1, 2)
     flat_rentals.add_to_db()
