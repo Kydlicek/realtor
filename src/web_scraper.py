@@ -129,5 +129,5 @@ class Scraper:
 
 if __name__ == "__main__":
     flat_rentals = Scraper(1, 2, 'flat_rentals_urls')
-    flat_rentals.scrape(1, 2)
+    flat_rentals.scrape(1, 3)
     flat_rentals.add_to_db()
