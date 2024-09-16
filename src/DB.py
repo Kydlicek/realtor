@@ -1,5 +1,7 @@
 from pymongo import MongoClient
 import logging
+import os
+
 
 class Database:
     def __init__(self, collection) -> None:
@@ -9,12 +11,22 @@ class Database:
         Parameters:
         - collection (str): The name of the collection in the MongoDB database.
         """
-        self.url = 'mongodb+srv://cluster0.5tkxvl3.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority'
-        self.client = MongoClient(
-            self.url,
-            tls=True,
-            tlsCertificateKeyFile="./etc/X509-cert-3739710124139658835.pem",
-        )
+        # self.url = 'mongodb+srv://cluster0.5tkxvl3.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority'
+
+        self.url = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+        self.cert = os.getenv("MONGO_CERT", None)
+
+        if self.cert:
+            # If a certificate is provided, connect using TLS
+            self.client = MongoClient(
+                self.url,
+                tls=True,
+                tlsCertificateKeyFile=self.cert,
+            )
+        else:
+            # Connect without TLS if no certificate is provided
+            self.client = MongoClient(self.url)
+
         self.q = self.client["app"][collection]
         self.logger = logging.getLogger(__name__)
 
@@ -97,14 +109,15 @@ class Database:
         - new_status (str): The new status to set for the document.
         """
         try:
-            self.q.update_one({'_id': document_id}, {'$set': {'status': new_status}})
+            self.q.update_one({"_id": document_id}, {"$set": {"status": new_status}})
             self.logger.info(f"Updated document {document_id} status to {new_status}")
         except Exception as e:
             self.logger.error(f"Failed to update document status: {e}")
 
+
 # Usage Example
 if __name__ == "__main__":
-    db = Database('test_collection')
+    db = Database("test_collection")
     print(db.get_doc_count())
     db.add_doc({"name": "John Doe", "age": 30, "status": "scraped"})
     print(db.retrieve_all())

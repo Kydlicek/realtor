@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: mongo:4.4
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  db-api:
+    build: ./db-api
+    container_name: api_service
+    ports:
+      - "8001:8000"
+    environment:
+      - MONGO_URL=mongodb://db:27017
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_service
+    ports:
+      - "8080:80" # Map port 8080 on the host to port 80 in the container (nginx)
+    depends_on:
+      - frontend_api # Optionally depend on the API if it needs to be ready first
+
+  frontend_api:
+    build: ./frontend_api
+    container_name: frontend_api_service
+    ports:
+      - "8003:8003"
+    environment:
+      - DB_API_URL=http://api_service:8000 # Set environment variable for db-api URL
+    depends_on:
+      - db-api
+
+volumes:
+  mongo_data:
+    driver: local

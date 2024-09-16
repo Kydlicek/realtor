@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 import logging
 from bs4 import BeautifulSoup
 import json
@@ -5,9 +10,11 @@ import time as tm
 from DB import Database
 import requests
 
+
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class Scraper:
     """
@@ -37,9 +44,11 @@ class Scraper:
         Update the URL with the current page number and timestamp.
         """
         self.tms = tm.time()
-        self.url = (f"https://www.sreality.cz/api/cs/v2/estates?category_main_cb={self.category_main}"
-                    f"&category_type_cb={self.category_type}&no_auction=1&no_shares=1"
-                    f"&page={self.page_num}&per_page={self.per_page}&tms={self.tms}")
+        self.url = (
+            f"https://www.sreality.cz/api/cs/v2/estates?category_main_cb={self.category_main}"
+            f"&category_type_cb={self.category_type}&no_auction=1&no_shares=1"
+            f"&page={self.page_num}&per_page={self.per_page}&tms={self.tms}"
+        )
 
     def get_page(self, url):
         """
@@ -51,8 +60,10 @@ class Scraper:
         Returns:
         - dict: Parsed JSON response from the API.
         """
-        header = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                  'Referer': url}
+        header = {
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Referer": url,
+        }
         try:
             res = requests.get(url, headers=header)
             res.raise_for_status()
@@ -80,22 +91,21 @@ class Scraper:
 
             for prop in props:
                 prop = self.make_listing(prop)
-                if self.prop_exists(prop['hash_id']):
+                if self.prop_exists(prop["hash_id"]):
                     pass
                 else:
                     self.all_props.append(prop)
             logger.info(
                 f"Scraped page {self.page_num} of {end_page - 1} || Listings: {len(self.all_props)}"
             )
-    def prop_exists(self,hash_id):
-        if self.db.find_by_param({"hash_id":hash_id}):
+
+    def prop_exists(self, hash_id):
+        if self.db.find_by_param({"hash_id": hash_id}):
             return True
         else:
             return False
-            
 
-        
-    def make_listing(self, data):   
+    def make_listing(self, data):
         """
         Create a simplified real estate listing from the original data.
 
@@ -108,7 +118,7 @@ class Scraper:
         seo = data["seo"]
         hash_id = data["hash_id"]
         url = f"https://www.sreality.cz/api/cs/v2/estates/{hash_id}"
-        return {"seo": seo, "hash_id": hash_id, "url": url, "status":"scraped"}
+        return {"seo": seo, "hash_id": hash_id, "url": url, "status": "scraped"}
 
     def scrape_all(self):
         """
@@ -127,7 +137,8 @@ class Scraper:
         else:
             logger.info("No properties to insert into the database")
 
+
 if __name__ == "__main__":
-    flat_rentals = Scraper(1, 2, 'flat_rentals_urls')
+    flat_rentals = Scraper(1, 2, "flat_rentals_urls")
     flat_rentals.scrape(1, 3)
     flat_rentals.add_to_db()
