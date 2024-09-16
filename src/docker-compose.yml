@@ -1,42 +1,62 @@
 version: '3.8'
 
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_reverse_proxy
+    ports:
+      - "80:80" # Expose port 80 for both frontend and backend API
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Nginx configuration
+    depends_on:
+      - frontend
+      - frontend_api
+    networks:
+      - internal_network
+
   db:
     image: mongo:4.4
     container_name: mongo_db
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - internal_network
 
-  db-api:
-    build: ./db-api
-    container_name: api_service
+  db_api:
+    build: ./db_api
+    container_name: db_api_service
     ports:
-      - "8001:8000"
+      - "5000:8000" # Expose db_api internally, mapped to port 8000
     environment:
-      - MONGO_URL=mongodb://db:27017
+      - MONGO_URL=mongodb://db:27017 # MongoDB URL for db_api
     depends_on:
       - db
-
-  frontend:
-    build: ./frontend
-    container_name: frontend_service
-    ports:
-      - "8080:80" # Map port 8080 on the host to port 80 in the container (nginx)
-    depends_on:
-      - frontend_api # Optionally depend on the API if it needs to be ready first
+    networks:
+      - internal_network
 
   frontend_api:
     build: ./frontend_api
     container_name: frontend_api_service
     ports:
-      - "8003:8003"
+      - "8003:8003" # Expose frontend_api on port 8003
     environment:
-      - DB_API_URL=http://api_service:8000 # Set environment variable for db-api URL
+      - DB_API_URL=http://db_api_service:8000 # Ensure frontend_api points to db_api
     depends_on:
-      - db-api
+      - db_api
+      - frontend
+    networks:
+      - internal_network
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_service
+    networks:
+      - internal_network
 
 volumes:
   mongo_data:
     driver: local
+
+networks:
+  internal_network:
+    driver: bridge
