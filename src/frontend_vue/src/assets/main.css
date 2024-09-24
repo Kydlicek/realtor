@@ -1,0 +1,24 @@
+@import "https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css";
+
+body {
+  height: 100vh;
+  overflow-y: hidden;
+}
+
+#app {
+  height: 100%;
+  overflow-y: hidden;
+  
+}
+
+/* Apply styles for WebKit browsers (Chrome, Safari, etc.) */
+body::-webkit-scrollbar {
+  width: 2px;
+  /* Set the width of the scrollbar */
+}
+
+/* Apply styles for WebKit browsers (Chrome, Safari, etc.) */
+body::-webkit-scrollbar-track {
+  background: transparent;
+  /* Set the background color of the scrollbar track to transparent */
+}

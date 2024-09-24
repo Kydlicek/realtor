@@ -50,6 +50,9 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend_service
+    environment:
+      - VUE_APP_API_URL=http://frontend_api_service:8003
+
     networks:
       - internal_network
 
