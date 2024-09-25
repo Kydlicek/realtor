@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useAuth0 } from '@auth0/auth0-vue';
+import { useAuth0 } from '@auth0/auth0-vue'
 
 const menu_clicked = ref('') // Define menu_clicked as a reactive ref
 
@@ -20,7 +20,6 @@ const login = () => {
 const handleLogout = () => {
   logout({ returnTo: window.location.origin })
 }
-
 </script>
 
 <template>
@@ -28,7 +27,7 @@ const handleLogout = () => {
     <nav class="navbar" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="http://localhost:5173/">
-          <img src="../assets/logo.webp" alt="Simple House Logo">
+          <img src="../assets/logo.webp" alt="Simple House Logo" />
         </a>
 
         <!-- Show login or logout button based on authentication state -->
@@ -37,8 +36,14 @@ const handleLogout = () => {
           <button v-if="isAuthenticated" @click="handleLogout">Log out</button>
         </a>
 
-        <a role="button" @click="clicked" :class="'navbar-burger' + ' ' + menu_clicked" aria-label="menu"
-          aria-expanded="false" data-target="navbarBasicExample">
+        <a
+          role="button"
+          @click="clicked"
+          :class="'navbar-burger' + ' ' + menu_clicked"
+          aria-label="menu"
+          aria-expanded="false"
+          data-target="navbarBasicExample"
+        >
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
