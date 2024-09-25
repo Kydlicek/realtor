@@ -2,9 +2,6 @@ properties = [
         {
             "id": 1,
             "name": "Mechurova 23",
-            "address": "Mechurova 23, Prague 4",
-            "coordinates": [51.5, -0.09],
-            "price": "24 400",
             "prop_type": "byt",
             "images": [
                 "https://images.pexels.com/photos/259950/pexels-photo-259950.jpeg",
@@ -24,16 +21,19 @@ properties = [
                 "amenities": ["School", "Park", "Shopping Center"],
                 "transport": ["Bus", "Metro", "Train"],
             },
-            "average_rent": "22 000 /m",
+            "location": {
+                "address": "Mechurova 23, Prague 4",
+                "coordinates": [51.5, -0.09],
+
+            },
+            
             "pricing_details": {
-                "one_time_payments": [
-                    {"name": "Security Deposit", "amount": "48 800 "},
-                    {"name": "Agency Fee", "amount": "24 400 "},
-                ],
-                "monthly_payments": [
-                    {"name": "Rent", "amount": "24 400 "},
-                    {"name": "Utilities", "amount": "2 500 "},
-                ],
+                "average_rent": "None",
+                "security deposit":"48 800",
+                "agency Fee":"24 400 ",
+                "rent": "24 400"
+                "utilities":"2500"
+               
             },
             "contact": {
                 "agent": "John Doe",

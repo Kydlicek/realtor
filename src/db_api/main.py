@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pymongo import MongoClient
 from os import getenv
 from bson.objectid import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List
 
 # Set up logging configuration
@@ -15,8 +15,8 @@ app = FastAPI()
 # Use MongoDB container's URL (db) provided by Docker Compose
 MONGO_URL = getenv("MONGO_URL")
 client = MongoClient(MONGO_URL)
-db = client["your_database"]
-collection = db["your_collection"]
+db = client["main_db"]
+collection = db["properties"]
 
 
 # Pydantic models for data validation
@@ -52,11 +52,11 @@ def item_serializer(item):
 
 
 # Retrieve all items from the collection
-@app.get("/items")
-async def get_items():
+@app.get("/items/{collection_name}")
+async def get_items(collection_name: str):
     logger.info("Fetching all items from MongoDB")
     try:
-        items = list(collection.find())
+        items = list(collection_name.find())
         logger.info(f"Retrieved {len(items)} items")
         return {"items": [item_serializer(item) for item in items]}
     except Exception as e:
@@ -65,9 +65,12 @@ async def get_items():
 
 
 # Insert a new item into the collection
-@app.post("/items")
-async def create_item(item: Item):
-    logger.info(f"Inserting new item: {item}")
+@app.post("/items/{collection_name}")
+async def create_item(collection_name: str, item: object):
+    # Get the collection dynamically based on the URL path parameter
+    collection = db[collection_name]
+
+    logger.info(f"Inserting new item into collection '{collection_name}': {item}")
     try:
         item_dict = item.dict()
         result = collection.insert_one(item_dict)
@@ -76,6 +79,7 @@ async def create_item(item: Item):
     except Exception as e:
         logger.error(f"Failed to insert item: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to insert item")
+
 
 
 # Retrieve an item by ID

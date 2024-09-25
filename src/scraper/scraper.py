@@ -1,16 +1,13 @@
 import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-
+from os import getenv
 import logging
 from bs4 import BeautifulSoup
 import json
 import time as tm
-from DB import Database
 import requests
-
-
+import aiohttp
+from itertools import islice  # Correct import
+from models import Listing
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,8 +17,7 @@ class Scraper:
     """
     Class for scraping real estate listings from the sreality.cz website.
     """
-
-    def __init__(self, category_main, category_type, db_collection_name):
+    def __init__(self, category_main, category_type):
         """
         Initializes a Scrape object.
 
@@ -34,7 +30,9 @@ class Scraper:
         self.category_type = category_type
         self.page_num = 1
         self.per_page = 60
-        self.db = Database(db_collection_name)
+        self.api_url = DB_API_URL = getenv("DB_API_URL")
+        self.urls_collection = "scraped_urls"
+        self.props_collection = "properties"
         self.all_props = []
         self.update_url()
         self.res_lenght = self.get_page(self.url)["result_size"]
@@ -92,7 +90,7 @@ class Scraper:
             for prop in props:
                 prop = self.make_listing(prop)
                 if self.prop_exists(prop["hash_id"]):
-                    pass
+                    return
                 else:
                     self.all_props.append(prop)
             logger.info(
@@ -100,6 +98,8 @@ class Scraper:
             )
 
     def prop_exists(self, hash_id):
+        response = requests.get(f'{self.api_url}/items/{self.urls_collection}')
+        
         if self.db.find_by_param({"hash_id": hash_id}):
             return True
         else:
@@ -118,7 +118,7 @@ class Scraper:
         seo = data["seo"]
         hash_id = data["hash_id"]
         url = f"https://www.sreality.cz/api/cs/v2/estates/{hash_id}"
-        return {"seo": seo, "hash_id": hash_id, "url": url, "status": "scraped"}
+        return {"seo": seo, "hash_id": hash_id, "url": url, "status": "pending"}
 
     def scrape_all(self):
         """
@@ -127,18 +127,45 @@ class Scraper:
         pages_to_scrape = self.res_lenght // self.per_page + 1
         self.scrape(1, pages_to_scrape)
 
-    def add_to_db(self):
-        """
-        Inserts all scraped properties into the database.
-        """
-        if self.all_props:
-            self.db.insert_many(self.all_props)
-            logger.info(f"Inserted {len(self.all_props)} documents into the database")
-        else:
-            logger.info("No properties to insert into the database")
+   
+    async def procces_props(self):
+        for el in self.all_props:
+            url = el['url']
+            prop = self.procces_url(url)
+            response = requests.post(f'{self.api_url}/items/{self.props_collection}', json=prop,)
+            logger.info(
+                f"prop_created and sent to DB {response}"
+            )
+            
 
 
+
+    def fetch(self,session, url):
+        try:
+            with session.get(
+                url["url"], headers={"user-agent": "Mozilla/5.0"}
+            ) as response:
+                return response.json()
+        except Exception as e:
+            logger.error(f"Request failed: {e}")
+            return None
+    
+    async def process_url(self,url):
+        async with aiohttp.ClientSession() as session:
+            page_data = await self.fetch(session, url)  # Calling the fetch function
+            if page_data:
+                try:
+                    listing = Listing(page_data)
+                    return listing.get_dict()
+                except KeyError as e:
+                    logger.error(f"KeyError: {e} for URL: {url['url']}")
+                    return None
+        return None
+    
+       
+    
 if __name__ == "__main__":
     flat_rentals = Scraper(1, 2, "flat_rentals_urls")
     flat_rentals.scrape(1, 3)
-    flat_rentals.add_to_db()
+    flat_rentals.procces_props()
+   
