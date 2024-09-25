@@ -1,19 +1,15 @@
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-const searchQuery = ref('');
-const router = useRouter();
+const searchQuery = ref('')
+const router = useRouter()
 const handleSearch = async () => {
-
   router.push({
     name: 'listings',
     params: { query: searchQuery.value }
-  });
-
-};
-
+  })
+}
 </script>
 
 <template>
@@ -23,23 +19,23 @@ const handleSearch = async () => {
 
       <div class="column is-centered">
         <div class="container">
-
           <p class="title is-block">Realtor App</p>
           <p class="subtitle is-block">Vyhledejte pronájem</p>
 
           <!-- Search Input -->
           <div class="field">
-            <label class="label">Search</label>
             <div class="control">
-              <input class="input mt-1" type="text" v-model="searchQuery"
-                placeholder="Enter house type, size, city, budget" />
+              <input
+                class="input mt-1"
+                type="text"
+                v-model="searchQuery"
+                placeholder="Enter house type, size, city, budget"
+              />
             </div>
           </div>
 
           <!-- Search Button -->
           <button class="button mt-2" @click="handleSearch">Vyhledat</button>
-
-
         </div>
       </div>
 
@@ -47,7 +43,6 @@ const handleSearch = async () => {
     </div>
   </div>
 </template>
-
 
 <style scoped>
 /* Add any custom styles here */
