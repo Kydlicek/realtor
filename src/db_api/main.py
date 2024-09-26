@@ -45,6 +45,12 @@ class Item(BaseModel):
     utilities: str
 
 
+class Url(BaseModel):
+    hash_id: str
+    url: str
+    status: str
+
+
 # Convert ObjectId to string for returning items
 def item_serializer(item):
     item["_id"] = str(item["_id"])
@@ -54,9 +60,10 @@ def item_serializer(item):
 # Retrieve all items from the collection
 @app.get("/items/{collection_name}")
 async def get_items(collection_name: str):
-    logger.info("Fetching all items from MongoDB")
+    logger.info(f"Fetching all items from collection: {collection_name}")
     try:
-        items = list(collection_name.find())
+        # Use {} as an empty filter to retrieve all items
+        items = list(db[collection_name].find({}))
         logger.info(f"Retrieved {len(items)} items")
         return {"items": [item_serializer(item) for item in items]}
     except Exception as e:
@@ -64,8 +71,20 @@ async def get_items(collection_name: str):
         raise HTTPException(status_code=500, detail="Failed to retrieve items")
 
 
+@app.post("/urls/scraped_urls")
+async def save_scraped_urls(url: Url):
+    logger.info(f"Saving scraped URL: {url.url}")
+    try:
+        result = db["scraped_urls"].insert_one(url.dict())
+        logger.info(f"Inserted URL with id: {str(result.inserted_id)}")
+        return {"_id": str(result.inserted_id)}
+    except Exception as e:
+        logger.error(f"Failed to insert URL: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to insert URL")
+
+
 # Insert a new item into the collection
-@app.post("/items/{collection_name}")
+@app.post("/items/prperties")
 async def create_item(collection_name: str, item: object):
     # Get the collection dynamically based on the URL path parameter
     collection = db[collection_name]
@@ -79,7 +98,6 @@ async def create_item(collection_name: str, item: object):
     except Exception as e:
         logger.error(f"Failed to insert item: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to insert item")
-
 
 
 # Retrieve an item by ID

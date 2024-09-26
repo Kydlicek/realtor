@@ -1,50 +1,56 @@
 <template>
   <div class="property-detail box">
-    <!-- Return to Grid Button -->
-    <div class="return-button">
-      <button class="button is-link" @click="$emit('deselect-property')">Return to Grid</button>
-    </div>
-
-    <!-- Main Image with Navigation -->
-    <div class="main-image-container">
-      <figure class="image is-16by9 main-image">
-        <img :src="property.images[currentImageIndex]" alt="Property Image" />
-        <button class="nav-button left-button" @click="prevImage">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="nav-button right-button" @click="nextImage">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </figure>
-    </div>
-
-    <!-- Thumbnails -->
-    <div class="thumbnails">
-      <div class="columns is-mobile is-multiline">
-        <div class="column is-one-fifth" v-for="(image, index) in property.images" :key="index">
-          <figure class="image is-4by3">
-            <img :src="image" :alt="'Thumbnail ' + (index + 1)" @click="currentImageIndex = index" />
+    <!-- Main Image with Thumbnails -->
+    <div class="image-container">
+      <div class="columns is-vcentered is-gapless">
+        <!-- Main Image (large) -->
+        <div class="column is-three-fifths">
+          <figure class="image main-image">
+            <img :src="property.images[currentImageIndex]" alt="Property Image" />
+            <button class="nav-button left-button" @click="prevImage">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="nav-button right-button" @click="nextImage">
+              <i class="fas fa-chevron-right"></i>
+            </button>
           </figure>
+        </div>
+
+        <!-- Thumbnails (two stacked vertically) -->
+        <div class="column is-two-fifths">
+          <div class="columns is-multiline is-gapless">
+            <div class="column is-full">
+              <figure class="image is-4by3" @click="currentImageIndex = 0">
+                <img :src="property.images[0]" alt="Thumbnail Image 1">
+              </figure>
+            </div>
+            <div class="column is-full">
+              <figure class="image is-4by3" @click="currentImageIndex = 1">
+                <img :src="property.images[1]" alt="Thumbnail Image 2">
+              </figure>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="flex overflow-x-auto overflow-y-hidden border-b border-gray-200 whitespace-nowrap dark:border-gray-700">
-    <button  @click="activeTab = 'basic'" class="inline-flex items-center h-10 px-4 -mb-px text-sm text-center text-blue-600 bg-transparent border-b-2 border-blue-500 sm:text-base dark:border-blue-400 dark:text-blue-300 whitespace-nowrap focus:outline-none">
-        Basic Information
-    </button>
 
-    <button   @click="activeTab = 'finances'" class="inline-flex items-center h-10 px-4 -mb-px text-sm text-center text-gray-700 bg-transparent border-b-2 border-transparent sm:text-base dark:text-white whitespace-nowrap cursor-base focus:outline-none hover:border-gray-400">
-        Finances
-    </button>
+    <!-- Tabs and Content below -->
+    <div class="tabs is-medium">
+      <ul>
+        <li :class="{ 'is-active': activeTab === 'basic' }">
+          <a @click="activeTab = 'basic'">Basic Information</a>
+        </li>
+        <li :class="{ 'is-active': activeTab === 'finances' }">
+          <a @click="activeTab = 'finances'">Finances</a>
+        </li>
+        <li :class="{ 'is-active': activeTab === 'contact' }">
+          <a @click="activeTab = 'contact'">Contact</a>
+        </li>
+      </ul>
+    </div>
 
-    <button  @click="activeTab = 'contact'" class="inline-flex items-center h-10 px-4 -mb-px text-sm text-center text-gray-700 bg-transparent border-b-2 border-transparent sm:text-base dark:text-white whitespace-nowrap cursor-base focus:outline-none hover:border-gray-400">
-        Contact
-    </button>
-</div>
-  
     <!-- Basic Information -->
-    <div  class="basic-info" v-if="activeTab === 'basic'">
-      <h2 class="title is-4">Basic Information</h2>
+    <div class="basic-info" v-if="activeTab === 'basic'">
       <div class="columns">
         <div class="column">
           <p><strong>Type:</strong> {{ property.prop_type }}</p>
@@ -59,63 +65,7 @@
         </div>
       </div>
     </div>
-
-    <!-- Features -->
-    <div class="features">
-      <h2 class="title is-4">Features</h2>
-      <ul>
-        <li v-for="(feature, index) in property.features" :key="index">{{ feature }}</li>
-      </ul>
-    </div>
-
-    <!-- Neighborhood -->
-    <div class="neighborhood">
-      <h2 class="title is-4">Neighborhood</h2>
-      <p>{{ property.neighborhood_description }}</p>
-      <h3 class="title is-5">Nearby Amenities</h3>
-      <ul>
-        <li v-for="(amenity, index) in property.amenities" :key="index">
-          {{ amenity }}
-        </li>
-      </ul>
-      <h3 class="title is-5">Transport Options</h3>
-      <ul>
-        <li v-for="(transport, index) in property.transport" :key="index">
-          {{ transport }}
-        </li>
-      </ul>
-    </div>
-
-    <!-- Average Rent -->
-    <div class="average-rent">
-      <h2 class="title is-4">Average Rent in Neighborhood</h2>
-      <p>{{ property.average_rent }} Kč/m</p>
-    </div>
-
-    <!-- Pricing Details -->
-    <div class="pricing-details" v-if="activeTab === 'finances'">
-      <h2 class="title is-4">Pricing Details</h2>
-      <h3 class="title is-5">One-time Payments</h3>
-      <ul>
-        <li>{{ property.security_deposit }}</li>
-        <li>{{ property.agency_fee }}</li>
-      </ul>
-      <h3 class="title is-5">Monthly Payments</h3>
-      <ul>
-        <li>{{ property.rent }}</li>
-        <li>{{ property.utilities }}</li>
-      </ul>
-    </div>
-
-    <!-- Contact Information -->
-    <div class="contact-info" v-if="activeTab === 'contact'">
-      <h2 class="title is-4">Contact Information</h2>
-      <p><strong>Agent:</strong> {{"Jordan Pepe" }}</p>
-      <p><strong>Phone:</strong> {{"420 74502345"}}</p>
-      <p><strong>Email:</strong> {{"dkasdssa@sezban.cz" }}</p>
-    </div>
   </div>
-
 </template>
 
 <script>
@@ -130,7 +80,7 @@ export default {
   data() {
     return {
       currentImageIndex: 0,
-      activeTab: 'basic' // Add this to manage active tabs
+      activeTab: 'basic' // To manage tabs
     }
   },
   methods: {
@@ -153,23 +103,29 @@ export default {
 </script>
 
 <style scoped>
-.property-detail {
-  padding: 20px;
-  max-height: 100vh;
-  overflow-y: auto;
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
 }
 
-.return-button {
-  text-align: right;
-  margin-bottom: 20px;
+.columns.is-gapless {
+  margin-left: 0;
+  margin-right: 0;
 }
 
-.main-image-container {
-  position: relative;
-  margin-bottom: 20px;
+.column {
+  padding: 0 !important;
 }
 
-.main-image img {
+figure.image {
+  margin: 0;
+}
+
+.main-image img, 
+figure img {
+  object-fit: cover;
   width: 100%;
   height: auto;
 }
@@ -198,29 +154,5 @@ export default {
 
 .right-button {
   right: 10px;
-}
-
-.thumbnails {
-  margin-bottom: 20px;
-}
-
-.thumbnails .image {
-  cursor: pointer;
-}
-
-.basic-info,
-.features,
-.neighborhood,
-.average-rent,
-.pricing-details,
-.contact-info {
-  margin-top: 20px;
-}
-
-.features ul,
-.neighborhood ul,
-.pricing-details ul {
-  list-style-type: disc;
-  padding-left: 20px;
 }
 </style>

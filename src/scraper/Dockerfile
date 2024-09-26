@@ -12,4 +12,4 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Command to run the script using cron
-CMD ["bash", "-c", "while true; do python web_scraper.py; sleep 1800; done"]
+CMD ["bash", "-c", "while true; do python scraper.py; sleep 1800; done"]

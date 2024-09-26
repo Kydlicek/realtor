@@ -24,7 +24,7 @@ services:
     build: ./db_api
     container_name: db_api_service
     ports:
-      - "8000" # Expose db_api internally, mapped to port 8000
+      - "8000:8000" # Expose db_api internally, mapped to port 8000
     environment:
       - MONGO_URL=mongodb://db:27017 # MongoDB URL for db_api
     depends_on:
@@ -35,16 +35,6 @@ services:
   scraper:
     build: ./scraper
     container_name: scraper
-    environment:
-      - DB_API_URL=http://db_api_service:8000
-    depends_on:
-      - db_api
-    networks:
-      - internal_network
-
-  data_fetcher:
-    build: ./data_fetcher
-    container_name: data_fetcher
     environment:
       - DB_API_URL=http://db_api_service:8000
     depends_on:
