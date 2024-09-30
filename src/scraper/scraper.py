@@ -35,8 +35,8 @@ class Scraper:
         self.category_type = category_type
         self.page_num = 1
         self.per_page = 60
-        # self.api_url = getenv("DB_API_URL")
-        self.api_url = "http://localhost:8000"
+        self.api_url = getenv("DB_API_URL")
+        # self.api_url = "http://localhost:8000"
         logger.info(f"API URL: {self.api_url}")
         self.urls_collection = "scraped_urls"
         self.props_collection = "properties"
@@ -62,7 +62,8 @@ class Scraper:
 
             return response.json()["items"]
         except:
-            raise Exception("Failed to pull scraped urls")
+            logger.error("Failed to pull scraped urls")
+            return []
 
     def get_page(self, url):
         """
@@ -178,6 +179,6 @@ class Scraper:
 
 if __name__ == "__main__":
     flat_rentals = Scraper(1, 2)
-    flat_rentals.scrape_pages(1, 9)
+    flat_rentals.scrape_pages(1, 2)
     flat_rentals.save_scraped()
     flat_rentals.procces_props()

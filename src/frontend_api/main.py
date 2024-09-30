@@ -4,7 +4,8 @@ from pydantic import BaseModel
 import httpx  # Use httpx for async requests
 from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
-#from prompt_model import RealEstateParameters, prompt, llm, ChatOpenAI
+
+# from prompt_model import RealEstateParameters, prompt, llm, ChatOpenAI
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -47,14 +48,13 @@ ml_recognition = {
 async def search_properties(search_query: SearchQuery):
     logger.info(f"Received search request with query: {search_query.query}")
 
-
     # messages = prompt.apply({"text": text})
     #     # Get response from the language model
     # response = await llm.agenerate(messages)
     try:
         # Send request to db-api asynchronously
         async with httpx.AsyncClient() as client:
-            res = await client.get(f"{DB_API_URL}/items")
+            res = await client.get(f"{DB_API_URL}/items/properties")
 
         # Log the response from db-api
         logger.info(f"Response from db-api: {res.json()['items']}")
@@ -75,9 +75,3 @@ async def search_properties(search_query: SearchQuery):
         raise HTTPException(
             status_code=500, detail=f"Error connecting to db-api: {str(e)}"
         )
-
-
-@app.get("/test")
-async def test():
-    logger.info("Test endpoint hit")
-    return ml_recognition
