@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from os import getenv
 from bson.objectid import ObjectId
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,6 @@ app = FastAPI()
 MONGO_URL = getenv("MONGO_URL")
 client = MongoClient(MONGO_URL)
 db = client["main_db"]
-collection = db["properties"]
 
 
 # Pydantic models for data validation
@@ -58,11 +57,10 @@ def item_serializer(item):
 
 
 # Retrieve all items from the collection
-@app.get("/items/{collection_name}")
+@app.get("/{collection_name}")
 async def get_items(collection_name: str):
     logger.info(f"Fetching all items from collection: {collection_name}")
     try:
-        # Use {} as an empty filter to retrieve all items
         items = list(db[collection_name].find({}))
         logger.info(f"Retrieved {len(items)} items")
         return {"items": [item_serializer(item) for item in items]}
@@ -71,7 +69,7 @@ async def get_items(collection_name: str):
         raise HTTPException(status_code=500, detail="Failed to retrieve items")
 
 
-@app.post("/urls/scraped_urls")
+@app.post("/scraped_urls")
 async def save_scraped_urls(url: Url):
     logger.info(f"Saving scraped URL: {url.url}")
     try:
@@ -84,11 +82,9 @@ async def save_scraped_urls(url: Url):
 
 
 # Insert a new item into the collection
-@app.post("/items/prperties")
-async def create_item(collection_name: str, item: object):
-    # Get the collection dynamically based on the URL path parameter
+@app.post("/{collection_name}")
+async def create_item(collection_name: str, item: Item):
     collection = db[collection_name]
-
     logger.info(f"Inserting new item into collection '{collection_name}': {item}")
     try:
         item_dict = item.dict()
@@ -101,9 +97,10 @@ async def create_item(collection_name: str, item: object):
 
 
 # Retrieve an item by ID
-@app.get("/items/{item_id}")
-async def get_item(item_id: str):
-    logger.info(f"Fetching item with id: {item_id}")
+@app.get("/{collection_name}/{item_id}")
+async def get_item(collection_name: str, item_id: str):
+    collection = db[collection_name]
+    logger.info(f"Fetching item with id: {item_id} from collection '{collection_name}'")
     try:
         item = collection.find_one({"_id": ObjectId(item_id)})
         if item:
@@ -117,9 +114,10 @@ async def get_item(item_id: str):
 
 
 # Delete an item by ID
-@app.delete("/items/{item_id}")
-async def delete_item(item_id: str):
-    logger.info(f"Deleting item with id: {item_id}")
+@app.delete("/{collection_name}/{item_id}")
+async def delete_item(collection_name: str, item_id: str):
+    collection = db[collection_name]
+    logger.info(f"Deleting item with id: {item_id} from collection '{collection_name}'")
     try:
         result = collection.delete_one({"_id": ObjectId(item_id)})
         if result.deleted_count == 1:
@@ -133,9 +131,12 @@ async def delete_item(item_id: str):
 
 
 # Update an item's status by ID
-@app.put("/items/{item_id}/status")
-async def update_item_status(item_id: str, new_status: str):
-    logger.info(f"Updating status of item {item_id} to {new_status}")
+@app.put("/{collection_name}/{item_id}/status")
+async def update_item_status(collection_name: str, item_id: str, new_status: str):
+    collection = db[collection_name]
+    logger.info(
+        f"Updating status of item {item_id} in collection '{collection_name}' to {new_status}"
+    )
     try:
         result = collection.update_one(
             {"_id": ObjectId(item_id)}, {"$set": {"status": new_status}}
@@ -151,28 +152,33 @@ async def update_item_status(item_id: str, new_status: str):
         raise HTTPException(status_code=400, detail="Invalid item ID")
 
 
-@app.get("/items/search/")
+# Search items by parameters
+@app.get("/search/")
 async def find_by_parameter(
-    id: int = None,
-    name: str = None,
-    address: str = None,
-    price: str = None,
-    prop_type: str = None,
-    energy_class: str = None,
-    rk: str = None,
-    floor: int = None,
-    parking: int = None,
-    elevator: str = None,
-    features: List[str] = None,
-    neighborhood_description: str = None,
-    average_rent: str = None,
+    collection_name: str,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    address: Optional[str] = None,
+    price: Optional[str] = None,
+    prop_type: Optional[str] = None,
+    energy_class: Optional[str] = None,
+    rk: Optional[str] = None,
+    floor: Optional[int] = None,
+    parking: Optional[int] = None,
+    elevator: Optional[str] = None,
+    features: Optional[List[str]] = None,
+    neighborhood_description: Optional[str] = None,
+    average_rent: Optional[str] = None,
 ):
-    logger.info(f"Searching items with provided parameters")
+    collection = db[collection_name]
+    logger.info(
+        f"Searching items in collection '{collection_name}' with provided parameters"
+    )
     query = {}
 
     # Dynamically build the query based on provided parameters
     if id:
-        query["id"] = id
+        query["_id"] = ObjectId(id)  # Expecting MongoDB ObjectId
     if name:
         query["name"] = name
     if address:
@@ -185,9 +191,9 @@ async def find_by_parameter(
         query["energy_class"] = energy_class
     if rk:
         query["rk"] = rk
-    if floor:
+    if floor is not None:
         query["floor"] = floor
-    if parking:
+    if parking is not None:
         query["parking"] = parking
     if elevator:
         query["elevator"] = elevator

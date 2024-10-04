@@ -20,9 +20,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # Retrieve the DB_API_URL from the environment variable
 DB_API_URL = getenv("DB_API_URL")
+
+props_collection = f"{DB_API_URL}/properties"
 
 
 # Define the Pydantic model for the incoming request
@@ -54,7 +55,7 @@ async def search_properties(search_query: SearchQuery):
     try:
         # Send request to db-api asynchronously
         async with httpx.AsyncClient() as client:
-            res = await client.get(f"{DB_API_URL}/items/properties")
+            res = await client.get(props_collection)
 
         # Log the response from db-api
         logger.info(f"Response from db-api: {res.json()['items']}")

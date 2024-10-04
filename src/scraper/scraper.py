@@ -38,8 +38,8 @@ class Scraper:
         self.api_url = getenv("DB_API_URL")
         # self.api_url = "http://localhost:8000"
         logger.info(f"API URL: {self.api_url}")
-        self.urls_collection = "scraped_urls"
-        self.props_collection = "properties"
+        self.urls_collection = f"{self.api_url}/scraped_urls"
+        self.props_collection = f"{self.api_url}/properties"
         self.all_props = []
         self.update_url()
         self.scraped_urls = self.pull_scraped()
@@ -58,9 +58,11 @@ class Scraper:
 
     def pull_scraped(self):
         try:
-            response = requests.get(f"{self.api_url}/items/{self.urls_collection}")
-
+            response = requests.get(self.urls_collection)
+            logger.info(self.urls_collection)
+            logger.info(f"Scraped urls: {len(response.json()['items'])}")
             return response.json()["items"]
+
         except:
             logger.error("Failed to pull scraped urls")
             return []
@@ -135,11 +137,16 @@ class Scraper:
 
     def save_scraped(self):
         for el in self.all_props:
-            response = requests.post(
-                f"{self.api_url}/urls/{self.urls_collection}",
-                json=el,
-            )
-            logger.info(f"{response.status_code, response.text}")
+            try:
+                response = requests.post(
+                    self.urls_collection,  # Assuming this is a valid URL as a string
+                    json=el,
+                )
+                logger.info(
+                    f"Status code: {response.status_code}, Response text: {response.text}"
+                )
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Error occurred while posting data: {str(e)}")
 
     def procces_props(self):
         pass
