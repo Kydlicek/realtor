@@ -35,8 +35,8 @@ class Scraper:
         self.category_type = category_type
         self.page_num = 1
         self.per_page = 60
-        self.api_url = getenv("DB_API_URL")
-        # self.api_url = "http://localhost:8000"
+        # self.api_url = getenv("DB_API_URL")
+        self.api_url = "http://localhost:8000"
         logger.info(f"API URL: {self.api_url}")
         self.urls_collection = f"{self.api_url}/scraped_urls"
         self.props_collection = f"{self.api_url}/properties"
@@ -148,25 +148,8 @@ class Scraper:
             except requests.exceptions.RequestException as e:
                 logger.error(f"Error occurred while posting data: {str(e)}")
 
-    def procces_props(self):
-        pass
-        # for el in self.all_props:
-        #     prop = self.process_url(el)
-        #     response = requests.post(
-        #         f"{self.api_url}/items/{self.props_collection}",
-        #         json=prop,
-        #     )
-        #     logger.info(f"prop_created and sent to DB {response}")
+    
 
-    def fetch(self, session, url):
-        try:
-            with session.get(
-                url["url"], headers={"user-agent": "Mozilla/5.0"}
-            ) as response:
-                return response.json()
-        except Exception as e:
-            logger.error(f"Request failed: {e}")
-            return None
 
     def process_url(self, url):
         try:
@@ -175,17 +158,27 @@ class Scraper:
             page_data = response.json()
 
             if page_data:
-                return Listing(page_data).get_dict()
+                return Listing(page_data).to_dict()
         except KeyError as e:
             logger.error(f"KeyError: {e} for URL: {url['url']}")
         except requests.RequestException as e:
             logger.error(f"Request failed: {e} for URL: {url['url']}")
 
             return None
-
-
+        
+    def procces_props(self):
+        props = requests.get(self.urls_collection,params={'status':'pending'})
+        for el in props.json()['items']:
+            prop = self.process_url(el)
+            if prop:
+                response = requests.post(
+                    self.props_collection,
+                    json=prop,
+                )
+                logger.info(f"prop sent to DB {response}")
+           
 if __name__ == "__main__":
-    flat_rentals = Scraper(1, 2)
+    flat_rentals = Scraper(1, 3)
     flat_rentals.scrape_pages(1, 2)
     flat_rentals.save_scraped()
     flat_rentals.procces_props()

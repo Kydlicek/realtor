@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from os import getenv
 from bson.objectid import ObjectId
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional,Dict
 
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO)
@@ -18,37 +18,6 @@ client = MongoClient(MONGO_URL)
 db = client["main_db"]
 
 
-# Pydantic models for data validation
-class Item(BaseModel):
-    name: str
-    address: str
-    coordinates: List[float]
-    price: str
-    prop_type: str
-    images: List[str]
-    prop_size_kk: int
-    prop_size_m2: int
-    energy_class: str
-    rk: str
-    floor: int
-    parking: int
-    elevator: str
-    features: List[str]
-    neighborhood_description: str
-    amenities: List[str]
-    transport: List[str]
-    average_rent: str
-    security_deposit: str
-    agency_fee: str
-    rent: str
-    utilities: str
-
-
-class Url(BaseModel):
-    hash_id: str
-    url: str
-    status: str
-
 
 # Convert ObjectId to string for returning items
 def item_serializer(item):
@@ -56,44 +25,26 @@ def item_serializer(item):
     return item
 
 
-# Retrieve all items from the collection
-@app.get("/{collection_name}")
-async def get_items(collection_name: str):
-    logger.info(f"Fetching all items from collection: {collection_name}")
-    try:
-        items = list(db[collection_name].find({}))
-        logger.info(f"Retrieved {len(items)} items")
-        return {"items": [item_serializer(item) for item in items]}
-    except Exception as e:
-        logger.error(f"Failed to retrieve items: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve items")
 
-
-@app.post("/scraped_urls")
-async def save_scraped_urls(url: Url):
-    logger.info(f"Saving scraped URL: {url.url}")
-    try:
-        result = db["scraped_urls"].insert_one(url.dict())
-        logger.info(f"Inserted URL with id: {str(result.inserted_id)}")
-        return {"_id": str(result.inserted_id)}
-    except Exception as e:
-        logger.error(f"Failed to insert URL: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to insert URL")
-
-
-# Insert a new item into the collection
 @app.post("/{collection_name}")
-async def create_item(collection_name: str, item: Item):
-    collection = db[collection_name]
-    logger.info(f"Inserting new item into collection '{collection_name}': {item}")
+async def save_to_db(collection_name: str, obj: Dict):
+    logger.info(f"Saving: {obj} to {collection_name}")
     try:
-        item_dict = item.dict()
-        result = collection.insert_one(item_dict)
-        logger.info(f"Inserted item with id: {str(result.inserted_id)}")
+        # Insert the object into the specified collection
+        result = db[collection_name].insert_one(obj)
+        
+        # Log the inserted ID
+        logger.info(f"Inserted object with id: {str(result.inserted_id)}")
+        
+        # Return the inserted ID as a response
         return {"_id": str(result.inserted_id)}
+    
     except Exception as e:
-        logger.error(f"Failed to insert item: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to insert item")
+        # Log the error and raise an HTTP exception
+        logger.error(f"Failed to insert object: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to insert object")
+
+
 
 
 # Retrieve an item by ID
@@ -153,7 +104,7 @@ async def update_item_status(collection_name: str, item_id: str, new_status: str
 
 
 # Search items by parameters
-@app.get("/search/")
+@app.get("/{collection_name}")
 async def find_by_parameter(
     collection_name: str,
     id: Optional[str] = None,
@@ -169,6 +120,7 @@ async def find_by_parameter(
     features: Optional[List[str]] = None,
     neighborhood_description: Optional[str] = None,
     average_rent: Optional[str] = None,
+    status: Optional[str] = None,
 ):
     collection = db[collection_name]
     logger.info(

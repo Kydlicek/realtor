@@ -144,3 +144,22 @@ class Listing:
             }
         except (KeyError, IndexError, TypeError):
             return {"name": None, "phone": None, "email": None}
+        
+    def to_dict(self) -> Dict:
+        # Return all the attributes of the instance as a dictionary
+        return {
+            "hash_id": self.hash_id,
+            "prop_info": self.prop_info,
+            "price": self.price,
+            "location": self.location,
+            "images": self.images,
+            "seo": self.seo,
+            "description": self.description,
+            "meta_description": self.meta_description,
+            "renting_details": self.renting_details,
+            "landlord": self.landlord,
+            "neighborhood": self.neighborhood,
+            "contact": self.contact,
+            "pricing_details": self.pricing_details,
+            "url": self.url,
+        }
