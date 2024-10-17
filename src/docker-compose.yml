@@ -1,46 +1,43 @@
 services:
-  nginx:
-    image: nginx:latest
-    container_name: nginx_reverse_proxy
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: "rabbitmq"
     ports:
-      - "80:80" # Expose port 80 for both frontend and backend API
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Nginx configuration
-    depends_on:
-      - frontend
-      - frontend_api
-    networks:
-      - internal_network
-
-  db:
-    image: mongo:4.4
-    container_name: mongo_db
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - internal_network
-
-  db_api:
-    build: ./db_api
-    container_name: db_api_service
-    ports:
-      - "8000:8000" # Expose db_api internally, mapped to port 8000
+      - "5672:5672"  # RabbitMQ broker port
+      - "15672:15672"  # RabbitMQ management UI
     environment:
-      - MONGO_URL=mongodb://db:27017 # MongoDB URL for db_api
-    depends_on:
-      - db
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
     networks:
       - internal_network
 
   scraper:
-    build: ./scraper
+    build: ./scraper  # Your scraper producer
     container_name: scraper
     environment:
-      - DB_API_URL=http://db_api_service:8000
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=user
+      - RABBITMQ_PASS=password
     depends_on:
-      - db_api
+      - rabbitmq
     networks:
       - internal_network
+
+  listings_maker:
+    build: ./listings_maker  # Your listings_maker consumer
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=user
+      - RABBITMQ_PASS=password
+      - DB_API_URL=http://db_api_service:8000
+    depends_on:
+      - rabbitmq
+      - scraper
+    networks:
+      - internal_network
+    restart: always  # Automatically restart the service
+    deploy:
+      replicas: 2
 
   frontend_api:
     build: ./frontend_api
@@ -54,20 +51,67 @@ services:
       - frontend
     networks:
       - internal_network
-
+  
   frontend:
     build: ./frontend_vue
     container_name: frontend_service
     environment:
       - VUE_APP_API_URL=http://frontend_api_service:8003
 
+  db_api:
+    build: ./db_api
+    container_name: db_api_service
+    ports:
+      - "8000:8000"  # Exposing db_api on port 8000
+    environment:
+      - MONGO_URL=mongodb://db:27017
+    depends_on:
+      - db
     networks:
       - internal_network
 
-volumes:
-  mongo_data:
-    driver: local
+  db:
+    image: mongo:4.4
+    container_name: mongo_db
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - internal_network
+      
+  nginx:
+    image: nginx:latest
+    container_name: nginx_reverse_proxy
+    ports:
+      - "80:80" # Expose port 80 for both frontend and backend API
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Nginx configuration
+    depends_on:
+      - frontend
+      - frontend_api
+    networks:
+      - internal_network
+
+  # Add test service here
+  test:
+    build: 
+      context: ./tests  # Point to the directory where your tests are
+      dockerfile: Dockerfile.test  # Use a custom Dockerfile for running tests
+    container_name: test_service
+    depends_on:
+      - rabbitmq
+      - db
+      - scraper
+      - listings_maker
+    networks:
+      - internal_network
+    environment:
+      - PYTHONPATH=/app  # Ensure Python can find all modules
+    command: pytest --maxfail=1 --disable-warnings -v  # Command to run tests
 
 networks:
   internal_network:
     driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local

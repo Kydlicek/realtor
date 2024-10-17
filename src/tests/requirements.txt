@@ -1,0 +1,3 @@
+pytest
+requests
+pika  # For RabbitMQ testing

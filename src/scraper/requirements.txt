@@ -4,3 +4,4 @@ pymongo
 requests
 bs4
 aiohttp
+pika

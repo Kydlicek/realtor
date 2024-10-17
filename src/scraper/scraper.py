@@ -1,21 +1,20 @@
-import sys
-from os import getenv
+import os
 import logging
-from bs4 import BeautifulSoup
 import json
 import time as tm
 import requests
-import aiohttp
-from itertools import islice  # Correct import
-from models import Listing
-
-# from dotenv import load_dotenv
+import pika
+import time
 
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# load_dotenv()
 
+# RabbitMQ settings
+RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'rabbitmq')
+RABBITMQ_USER = os.getenv('RABBITMQ_USER', 'user')
+RABBITMQ_PASS = os.getenv('RABBITMQ_PASS', 'password')
+QUEUE_NAME = 'urls_queue'
 
 class Scraper:
     """
@@ -24,26 +23,22 @@ class Scraper:
 
     def __init__(self, category_main, category_type):
         """
-        Initializes a Scrape object.
-
-        Parameters:
-        - category_main (int): Main category of the real estate (1 Byty, 2 Domy, 3 Pozemky, 4 Komercni, 5 Ostatni)
-        - category_type (int): Type of real estate transaction (1 Prodej, 2 Pronajem)
-        - db_collection_name (str): Name of the collection in the database to store the scraped data.
+        Initializes a Scraper object.
         """
         self.category_main = category_main
         self.category_type = category_type
         self.page_num = 1
         self.per_page = 60
-        # self.api_url = getenv("DB_API_URL")
         self.api_url = "http://localhost:8000"
         logger.info(f"API URL: {self.api_url}")
-        self.urls_collection = f"{self.api_url}/scraped_urls"
-        self.props_collection = f"{self.api_url}/properties"
         self.all_props = []
         self.update_url()
-        self.scraped_urls = self.pull_scraped()
-        self.res_lenght = self.get_page(self.url)["result_size"]
+
+        page_info = self.get_page(self.url)
+        if page_info:
+            self.res_length = page_info["result_size"]
+        else:
+            self.res_length = 0
 
     def update_url(self):
         """
@@ -56,33 +51,16 @@ class Scraper:
             f"&page={self.page_num}&per_page={self.per_page}&tms={self.tms}"
         )
 
-    def pull_scraped(self):
-        try:
-            response = requests.get(self.urls_collection)
-            logger.info(self.urls_collection)
-            logger.info(f"Scraped urls: {len(response.json()['items'])}")
-            return response.json()["items"]
-
-        except:
-            logger.error("Failed to pull scraped urls")
-            return []
-
     def get_page(self, url):
         """
         Sends a GET request to the sreality.cz API and returns the parsed response.
-
-        Parameters:
-        - url (str): The URL to send the GET request to.
-
-        Returns:
-        - dict: Parsed JSON response from the API.
         """
-        header = {
+        headers = {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Referer": url,
         }
         try:
-            res = requests.get(url, headers=header)
+            res = requests.get(url, headers=headers)
             res.raise_for_status()
             return res.json()
         except requests.exceptions.RequestException as e:
@@ -92,10 +70,6 @@ class Scraper:
     def scrape_pages(self, start_page, end_page):
         """
         Scrapes real estate listings from specified pages and stores them in the 'all_props' list.
-
-        Parameters:
-        - start_page (int): Starting page number for scraping.
-        - end_page (int): Ending page number for scraping.
         """
         for i in range(start_page, end_page):
             self.page_num = i
@@ -105,80 +79,91 @@ class Scraper:
                 continue
 
             props = soup["_embedded"]["estates"]
-
             for prop in props:
-                prop = self.make_listing(prop)
-                if self.prop_exists(prop["hash_id"]):
-                    return
-                else:
-                    self.all_props.append(prop)
+                # Only append the URL to the list of properties
+                url = f"https://www.sreality.cz/api/cs/v2/estates/{prop['hash_id']}"
+                self.all_props.append(url)
+
             logger.info(
                 f"Scraped page {self.page_num} of {end_page - 1} || Listings: {len(self.all_props)}"
             )
-
-    def prop_exists(self, hash_id):
-        for el in self.scraped_urls:
-            if el["hash_id"] == hash_id:
-                return True
-        return False
-
-    def make_listing(self, data):
-        seo = data["seo"]
-        hash_id = str(data["hash_id"])
-        url = f"https://www.sreality.cz/api/cs/v2/estates/{hash_id}"
-        return {"hash_id": hash_id, "url": url, "status": "pending"}
 
     def scrape_all(self):
         """
         Scrapes all pages of real estate listings and stores them in the 'all_props' list.
         """
-        pages_to_scrape = self.res_lenght // self.per_page + 1
-        self.scrape(1, pages_to_scrape)
+        pages_to_scrape = self.res_length // self.per_page + 1
+        self.scrape_pages(1, pages_to_scrape)
 
-    def save_scraped(self):
-        for el in self.all_props:
+    def wait_for_rabbitmq_connection(self, max_retries=10, delay=10):
+        """
+        Wait for RabbitMQ to become available by retrying the connection.
+        """
+        retries = 0
+        while retries < max_retries:
             try:
-                response = requests.post(
-                    self.urls_collection,  # Assuming this is a valid URL as a string
-                    json=el,
-                )
-                logger.info(
-                    f"Status code: {response.status_code}, Response text: {response.text}"
-                )
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Error occurred while posting data: {str(e)}")
+                # Try to establish the connection to RabbitMQ
+                credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+                connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+                connection.close()  # Close immediately after testing the connection
+                logger.info("Successfully connected to RabbitMQ.")
+                return True
+            except pika.exceptions.AMQPConnectionError as e:
+                retries += 1
+                logger.warning(f"Failed to connect to RabbitMQ. Retrying in {delay} seconds... (Attempt {retries}/{max_retries})")
+                time.sleep(delay)
 
+        logger.error(f"Failed to connect to RabbitMQ after {max_retries} retries.")
+        return False
+
+    def send_to_queue(self):
+        """
+        Send all scraped URLs to RabbitMQ.
+        """
+        for url in self.all_props:
+            try:
+                self.send_to_rabbitmq(url)
+            except Exception as e:
+                logger.error(f"Failed to send URL to RabbitMQ: {url}, Error: {e}")
     
-
-
-    def process_url(self, url):
+    def send_to_rabbitmq(self, url):
+        """
+        Sends a URL message to RabbitMQ queue.
+        """
         try:
-            response = requests.get(url["url"], headers={"user-agent": "Mozilla/5.0"})
-            response.raise_for_status()  # Raise an exception for bad responses
-            page_data = response.json()
+            # Connect to RabbitMQ with credentials
+            credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+            channel = connection.channel()
 
-            if page_data:
-                return Listing(page_data).to_dict()
-        except KeyError as e:
-            logger.error(f"KeyError: {e} for URL: {url['url']}")
-        except requests.RequestException as e:
-            logger.error(f"Request failed: {e} for URL: {url['url']}")
+            # Declare the queue (make sure it's the same as the consumer's)
+            channel.queue_declare(queue=QUEUE_NAME, durable=True)
 
-            return None
-        
-    def procces_props(self):
-        props = requests.get(self.urls_collection,params={'status':'pending'})
-        for el in props.json()['items']:
-            prop = self.process_url(el)
-            if prop:
-                response = requests.post(
-                    self.props_collection,
-                    json=prop,
+            # Send the URL as the message to the queue
+            channel.basic_publish(
+                exchange='',
+                routing_key=QUEUE_NAME,
+                body=json.dumps({'url': url}),  # Send only the URL in the message body
+                properties=pika.BasicProperties(
+                    delivery_mode=2,  # Make message persistent
                 )
-                logger.info(f"prop sent to DB {response}")
-           
+            )
+            logger.info(f"Sent URL to RabbitMQ: {url}")
+
+        except pika.exceptions.AMQPConnectionError as e:
+            logger.error(f"RabbitMQ connection failed: {e}")
+            raise
+        finally:
+            if 'connection' in locals():
+                connection.close()
+
+
 if __name__ == "__main__":
-    flat_rentals = Scraper(1, 3)
-    flat_rentals.scrape_pages(1, 2)
-    flat_rentals.save_scraped()
-    flat_rentals.procces_props()
+    scraper = Scraper(1, 2)
+
+    # Wait for RabbitMQ to become available before starting the scraping process
+    if scraper.wait_for_rabbitmq_connection():
+        scraper.scrape_pages(1, 3)
+        scraper.send_to_queue()
+    else:
+        logger.error("Could not establish connection to RabbitMQ. Exiting.")

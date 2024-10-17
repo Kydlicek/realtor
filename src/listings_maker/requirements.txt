@@ -1,0 +1,4 @@
+pika
+requests
+beautifulsoup4
+aiohttp
