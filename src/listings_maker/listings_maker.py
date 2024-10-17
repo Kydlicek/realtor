@@ -4,6 +4,7 @@ import json
 import logging
 from models import Listing
 import os
+import time
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +19,27 @@ QUEUE_NAME = 'urls_queue'
 # Define the database API URL
 DB_API_URL = os.getenv('DB_API_URL')
 logger.info(DB_API_URL)
+
+def wait_for_rabbitmq_connection(max_retries=10, delay=10):
+    """
+    Wait for RabbitMQ to become available by retrying the connection.
+    """
+    retries = 0
+    while retries < max_retries:
+        try:
+            # Try to establish the connection to RabbitMQ
+            credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+            connection.close()  # Close immediately after testing the connection
+            logger.info("Successfully connected to RabbitMQ.")
+            return True
+        except pika.exceptions.AMQPConnectionError as e:
+            retries += 1
+            logger.warning(f"Failed to connect to RabbitMQ. Retrying in {delay} seconds... (Attempt {retries}/{max_retries})")
+            time.sleep(delay)
+
+    logger.error(f"Failed to connect to RabbitMQ after {max_retries} retries.")
+    return False
 
 def process_message(ch, method, properties, body):
     """
@@ -73,11 +95,15 @@ def process_message(ch, method, properties, body):
         logger.error(f"Unexpected error: {e}")
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
-
 def start_consumer():
     """
     Start the RabbitMQ consumer and listen for messages from the queue.
     """
+    # Wait for RabbitMQ to be available before starting the consumer
+    if not wait_for_rabbitmq_connection():
+        logger.error("RabbitMQ connection failed. Exiting.")
+        return
+
     # Use the credentials to connect to RabbitMQ
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
     connection = pika.BlockingConnection(
@@ -94,7 +120,6 @@ def start_consumer():
 
     logger.info(f"Waiting for messages in {QUEUE_NAME} queue. To exit press CTRL+C")
     channel.start_consuming()
-
 
 if __name__ == "__main__":
     start_consumer()
