@@ -1,81 +1,137 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import httpx
-import torch
-from transformers import BertTokenizer, BertForSequenceClassification
 import logging
 from os import getenv
+import requests
+from typing import Optional, Dict
+from openai import OpenAI
+import json
 
 # Setup logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI()
 
-# Define the request schema
-class SearchQuery(BaseModel):
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Update with your frontend URL(s)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers (Authorization, Content-Type, etc.)
+)
+
+# Retrieve environment variables
+DB_API = getenv("DB_API")
+OPEN_AI_KEY = getenv('OPEN_AI_KEY')
+
+# Validate environment variables
+if not DB_API:
+    logger.error("DB_API environment variable not set.")
+    raise ValueError("DB_API environment variable not set.")
+
+if not OPEN_AI_KEY:
+    logger.error("OPEN_AI_KEY environment variable not set.")
+    raise ValueError("OPEN_AI_KEY environment variable not set.")
+
+# API endpoint for properties collection
+props_collection = f"{DB_API}/properties"
+
+# Define the request model
+class SearchRequest(BaseModel):
     query: str
+    params: Optional[Dict] = None  # Optional for future use
 
-# Load the trained BERT model and tokenizer from the 'results' directory
-model = BertForSequenceClassification.from_pretrained("./saved_model")
-tokenizer = BertTokenizer.from_pretrained("./saved_model")
+def prompt_to_params(msg: str) -> Dict:
+    client = OpenAI(
+        api_key=OPEN_AI_KEY
+    )
+    
+    instructions = """
+    You are a realtor. From the given text, recognize the building parameters mentioned. For example:
+    "nákup bytu 4+kk Praha 4 65m2 do 6 mil korun, s balkonem a sklepem."
 
-DB_API_URL = getenv("DB_API_URL")
-# Your existing properties collection (this will be your db-api endpoint)
-props_collection = f"{DB_API_URL}/properties"
-
-
-
-@app.post("/search")
-async def search_properties(query: SearchQuery):
-    logger.info(f"Received search request with query: {query.query}")
-
-    # Tokenize the user input query
-    inputs = tokenizer(query.query, return_tensors="pt", truncation=True, padding=True)
-
-    # Use the BERT model to get predictions
-    with torch.no_grad():
-        outputs = model(**inputs)
-
-    # Extract the predicted class labels
-    predicted_labels = torch.argmax(outputs.logits, dim=-1).tolist()
-
-    # Log the predicted labels
-    logger.info(f"Predicted labels from BERT: {predicted_labels}")
-
-    # Modify the query using the predicted labels (e.g., based on model output)
-    # You can map predicted_labels to actual category names here if needed
-    # Example: Modify the query to include additional filters
-    # This part depends on how your model is trained and what labels it outputs
-    modified_query = {
-        "original_query": query.query,
-        "bert_labels": predicted_labels  # You can replace this with category names
+    You should return a JSON object with the following structure:
+    {
+        "transaction": "buy",
+        "property_type": "flat",
+        "size_kk": "4+kk",
+        "city": "Praha-5",
+        "size_m2": 65,
+        "price": 6000000,
+        "currency": "czk",
+        "balcony": true,
+        "cellar": true
     }
 
-    # Now proceed with the existing logic to send the modified query to db-api
+    Only include "balcony" and "cellar" if they are mentioned in the text. Ensure all other fields are present as per the structure.
+    """
+
     try:
-        # Send request to db-api asynchronously with the modified query
-        async with httpx.AsyncClient() as client:
-            res = await client.get(props_collection)
-
-        # Log the response from db-api
-        logger.info(f"Response from db-api: {res.json()['items']}")
-
-        # Handle errors from db-api
-        if res.status_code != 200:
-            logger.error(f"Error from db-api, status code: {res.status_code}")
-            raise HTTPException(
-                status_code=res.status_code,
-                detail="Error fetching properties from db-api",
-            )
-
-        # Return the combined result
-        user_msg = {"query": modified_query, "properties": res.json()["items"]}
-        logger.info(f"Sending response to client: {user_msg}")
-        return user_msg
-
-    except httpx.RequestError as e:
-        logger.error(f"Error connecting to db-api: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Error connecting to db-api: {str(e)}"
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": instructions},
+                {"role": "user", "content": msg},
+            ],
+            temperature=0  # Set to 0 for deterministic output
         )
+    except Exception as e:
+        logger.error(f"OpenAI API request failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process the query with OpenAI.")
+
+    # Extract the text response from OpenAI
+    params_text = response.choices[0].message.content.strip()
+    logger.info(f"OpenAI response text: {params_text}")
+
+    # Convert the text to a dictionary
+    try:
+        params = json.loads(params_text)
+        logger.info(f"Parsed parameters: {params}")
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse parameters: {e}")
+        raise HTTPException(status_code=400, detail="Invalid parameters generated from the query.")
+
+    return params
+
+def get_properties_by_params(params: Dict) -> Dict:
+    url = f'{DB_API}/{params["transaction"]}'  # Dynamically use 'rents' or 'buys' collection
+
+    # Remove 'transaction' from params before sending to the database API
+    params.pop("transaction", None)
+
+    try:
+        # Use the correct syntax for passing `params` to the GET request
+        response = requests.get(url=url, params=params)
+        response.raise_for_status()  # Raise an exception for bad HTTP status codes
+        return response.json()  # Assuming the API returns JSON
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to get properties: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve properties.")
+
+@app.post("/api/search")
+async def search_properties(search_request: SearchRequest):
+    logger.info(f"Received search request with query: {search_request.query}")
+
+    # Use the 'params' if provided; otherwise, generate them
+    if search_request.params:
+        params = search_request.params
+    else:
+        params = prompt_to_params(search_request.query)
+        params['index'] = 0
+        # index sets that we want to load 1st page
+
+    # Fetch properties from db-api with the constructed parameters
+    properties = get_properties_by_params(params)
+
+    # Prepare response
+    res = {
+        "original_query": search_request.query,
+        "query_parameters": params,
+        "properties": properties
+    }
+
+    return res

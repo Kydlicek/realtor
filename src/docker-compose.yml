@@ -43,26 +43,29 @@ services:
     build: ./frontend_api
     container_name: frontend_api_service
     ports:
-      - "8003:8003" # Expose frontend_api on port 8003
+      - "8003:8003" 
     environment:
-      - DB_API_URL=http://db_api_service:8000 # Ensure frontend_api points to db_api
+      - OPEN_AI_KEY=sk-E_A0JGZdoGMh6b7MkSgF0P6RdHy2Fn2XGb0yGPXCI9T3BlbkFJtDSC7qOzzEd7FmfCm64ZXNn7KNDVb_EflrLES9CVMA
+      - DB_API=http://localhost:8000
     depends_on:
       - db_api
-      - frontend
     networks:
       - internal_network
   
-  frontend:
-    build: ./frontend_vue
-    container_name: frontend_service
-    environment:
-      - VUE_APP_API_URL=http://frontend_api_service:8003
+  # frontend:
+  #   build: ./frontend
+  #   container_name: frontend_service
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - F_API_URL=http://frontend_api_service:8003
+  
 
   db_api:
     build: ./db_api
     container_name: db_api_service
     ports:
-      - "8000:8000"  # Exposing db_api on port 8000
+      - "8000:8000" 
     environment:
       - MONGO_URL=mongodb://db:27017
     depends_on:
@@ -82,31 +85,31 @@ services:
     image: nginx:latest
     container_name: nginx_reverse_proxy
     ports:
-      - "80:80" # Expose port 80 for both frontend and backend API
+      - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Nginx configuration
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - frontend
+      # - frontend
       - frontend_api
     networks:
       - internal_network
 
   # Add test service here
-  test:
-    build: 
-      context: ./tests  # Point to the directory where your tests are
-      dockerfile: Dockerfile.test  # Use a custom Dockerfile for running tests
-    container_name: test_service
-    depends_on:
-      - rabbitmq
-      - db
-      - scraper
-      - listings_maker
-    networks:
-      - internal_network
-    environment:
-      - PYTHONPATH=/app  # Ensure Python can find all modules
-    command: pytest --maxfail=1 --disable-warnings -v  # Command to run tests
+  # test:
+  #   build: 
+  #     context: ./tests  # Point to the directory where your tests are
+  #     dockerfile: Dockerfile.test  # Use a custom Dockerfile for running tests
+  #   container_name: test_service
+  #   depends_on:
+  #     - rabbitmq
+  #     - db
+  #     - scraper
+  #     - listings_maker
+  #   networks:
+  #     - internal_network
+  #   environment:
+  #     - PYTHONPATH=/app  # Ensure Python can find all modules
+  #   command: pytest --maxfail=1 --disable-warnings -v  # Command to run tests
 
 networks:
   internal_network:

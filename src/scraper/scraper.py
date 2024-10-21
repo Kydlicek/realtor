@@ -33,7 +33,7 @@ class Scraper:
         logger.info(f"API URL: {self.api_url}")
         self.all_props = []
         self.update_url()
-
+        
         page_info = self.get_page(self.url)
         if page_info:
             self.res_length = page_info["result_size"]
@@ -82,7 +82,17 @@ class Scraper:
             for prop in props:
                 # Only append the URL to the list of properties
                 url = f"https://www.sreality.cz/api/cs/v2/estates/{prop['hash_id']}"
-                self.all_props.append(url)
+                if self.category_main == 1:
+                    transaction = 'rent'
+                else:
+                    transaction = 'buy'
+                if self.category_type == 2:
+                    property_type = 'flat'
+                else:
+                    property_type = 'hause'
+                obj = {'property_type': property_type,'transaction': transaction, 'url':url, 'hash_id':prop['hash_id'] }
+                print(obj)
+                self.all_props.append(obj)
 
             logger.info(
                 f"Scraped page {self.page_num} of {end_page - 1} || Listings: {len(self.all_props)}"
@@ -143,7 +153,7 @@ class Scraper:
             channel.basic_publish(
                 exchange='',
                 routing_key=QUEUE_NAME,
-                body=json.dumps({'url': url}),  # Send only the URL in the message body
+                body=json.dumps(url),  # Send only the URL in the message body
                 properties=pika.BasicProperties(
                     delivery_mode=2,  # Make message persistent
                 )

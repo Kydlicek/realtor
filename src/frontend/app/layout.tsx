@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <NavBar /> {/* Render the NavBar component properly */}
+      <NavBar /> {/* Render the NavBar component properly */}       
         {children}
       </body>
     </html>

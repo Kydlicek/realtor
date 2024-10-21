@@ -2,7 +2,7 @@ import pika
 import requests
 import json
 import logging
-from models import Listing
+from models import Listing 
 import os
 import time
 
@@ -17,8 +17,7 @@ RABBITMQ_PASS = os.getenv('RABBITMQ_PASS', 'password')
 QUEUE_NAME = 'urls_queue'
 
 # Define the database API URL
-DB_API_URL = os.getenv('DB_API_URL')
-logger.info(DB_API_URL)
+DB_API_URL = os.getenv('DB_API_URL','http://localhost:8000')
 
 def wait_for_rabbitmq_connection(max_retries=10, delay=10):
     """
@@ -42,58 +41,45 @@ def wait_for_rabbitmq_connection(max_retries=10, delay=10):
     return False
 
 def process_message(ch, method, properties, body):
-    """
-    Callback function for processing messages from the RabbitMQ queue.
-    """
     try:
         message = json.loads(body)
         logger.info(f"Received message: {message}")
-
-        # Extract message fields
-        url = message.get("url")
-
-        # Validate URL
-        if not url:
-            logger.error(f"Invalid message format: {message}")
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-            return
-
+        url = message['url']
         # Scrape the URL
         response = requests.get(url, headers={"user-agent": "Mozilla/5.0"})
         response.raise_for_status()  # Raise exception for 4xx/5xx errors
-        page_data = response.text
+        message['page_data'] = response.text
 
-        # Process the page data into a Listing object
-        if page_data:
-            try:
-                listing = Listing(page_data).to_dict()  # Assuming you have a Listing class that parses this data
-            except Exception as e:
-                logger.error(f"Error converting page data to Listing: {e}")
-                ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
-                return
-
-        # Prepare payload for database API (you can adjust this as necessary)
-        payload = {
-            "listing": listing,
-            "url": url
-        }
-
-        # Send the processed data to the database API
-        db_response = requests.post(DB_API_URL, json=payload)
+        listing = Listing(message).to_dict()
+        # Send the processed listing object to the database API's /add endpoint
+        db_response = requests.post(f"{DB_API_URL}/add", json=listing)
         db_response.raise_for_status()
 
         logger.info(f"Successfully processed and stored data for {url}")
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        if ch is not None:
+            ch.basic_ack(delivery_tag=method.delivery_tag)
 
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 410:
+            logger.error(f"Resource gone (410 error) for URL {url}: {e}")
+            if ch is not None:
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+        else:
+            logger.error(f"Error scraping URL {url}: {e}")
+            if ch is not None:
+                ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
     except requests.RequestException as e:
         logger.error(f"Error scraping URL {url}: {e}")
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)  # Requeue message for retry
+        if ch is not None:
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
     except json.JSONDecodeError:
         logger.error("Error decoding message")
-        ch.basic_ack(delivery_tag=method.delivery_tag)  # Acknowledge invalid messages
+        if ch is not None:
+            ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+        if ch is not None:
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
 def start_consumer():
     """
@@ -121,5 +107,15 @@ def start_consumer():
     logger.info(f"Waiting for messages in {QUEUE_NAME} queue. To exit press CTRL+C")
     channel.start_consuming()
 
+# if __name__ == "__main__":
+#     start_consumer()
+
 if __name__ == "__main__":
-    start_consumer()
+    test_message = json.dumps({
+        'property_type': 'house',
+        'transaction': 'rent',
+        'url': 'https://www.sreality.cz/api/cs/v2/estates/997425740',
+        'hash_id':'997425740'
+    })
+
+    process_message(None, None, None, test_message)

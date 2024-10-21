@@ -8,13 +8,13 @@ export default function Component() {
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="lg:hidden">
-            <MenuIcon className="h-6 w-6" />
+            <MenuIcon />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
           <Link href="#" className="mr-6 hidden lg:flex" prefetch={false}>
-            <MountainIcon className="h-6 w-6" />
+            <MountainIcon  />
             <span className="sr-only">Acme Inc</span>
           </Link>
           <div className="grid gap-2 py-6">
@@ -48,7 +48,6 @@ export default function Component() {
             </Link>
             <Button
               className="flex w-full items-center py-2 text-lg font-semibold"
-              prefetch={false}
             >
               Sign in
             </Button>
@@ -56,7 +55,7 @@ export default function Component() {
         </SheetContent>
       </Sheet>
       <Link href="#" className="mr-6 hidden lg:flex" prefetch={false}>
-        <MountainIcon className="h-6 w-6" />
+        <MountainIcon  />
         <span className="sr-only">Acme Inc</span>
       </Link>
       <nav className="ml-auto hidden lg:flex gap-6">
@@ -90,7 +89,6 @@ export default function Component() {
         </Link>
         <button
           className="group inline-flex h-9 w-max border items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-          prefetch={false}
         >
           Sign in
         </button>
@@ -99,10 +97,9 @@ export default function Component() {
   );
 }
 
-function MenuIcon(props) {
+function MenuIcon() {
   return (
     <svg
-      {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
@@ -120,10 +117,9 @@ function MenuIcon(props) {
   );
 }
 
-function MountainIcon(props) {
+function MountainIcon() {
   return (
     <svg
-      {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"

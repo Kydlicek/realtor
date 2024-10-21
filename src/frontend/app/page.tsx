@@ -1,3 +1,6 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation"; // Use next/navigation instead of next/router
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +15,42 @@ import {
 } from "lucide-react";
 
 export default function HeroFormCenterAlignedSearchWithTags() {
+  const [inputValue, setInputValue] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // State for error handling
+  const router = useRouter();
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorMessage(""); // Reset the error message before API call
+  
+    try {
+      // Send the request to your frontend API using POST
+      const response = await fetch("http://localhost:8003/api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: inputValue }), // Sending the input value in the body
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+  
+        // Pass the response data to /listings using router.push and pass data as query params or state
+        router.push({
+          pathname: "/listings",
+          query: { data: encodeURIComponent(JSON.stringify(data)) }, // Encoding to make it URL-safe
+        });
+      } 
+      else {
+        setErrorMessage("Failed to fetch data from frontend API.");
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred. Please try again.");
+    }
+  };
+  
+
   return (
     <>
       {/* Hero */}
@@ -26,13 +65,18 @@ export default function HeroFormCenterAlignedSearchWithTags() {
             </p>
             <div className="mt-7 sm:mt-12 mx-auto max-w-xl relative">
               {/* Form */}
-              <form>
+              {errorMessage && <p className="text-red-500">{errorMessage}</p>} {/* Error Message */}
+              <form onSubmit={handleSubmit}>
                 <div className="relative z-10 flex space-x-3 p-3 border bg-background rounded-lg shadow-lg">
                   <div className="flex-[1_0_0%]">
                     <Label htmlFor="article" className="sr-only">
                       vyhledejte nemovitost
                     </Label>
+
                     <Input
+                      type="text"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
                       name="article"
                       className="h-full"
                       id="article"
@@ -40,13 +84,14 @@ export default function HeroFormCenterAlignedSearchWithTags() {
                     />
                   </div>
                   <div className="flex-[0_0_auto]">
-                    <Button size={"icon"}>
+                    <Button size={"icon"} type="submit">
                       <SearchIcon />
                     </Button>
                   </div>
                 </div>
               </form>
               {/* End Form */}
+
               {/* SVG Element */}
               <div className="hidden md:block absolute top-0 end-0 -translate-y-12 translate-x-20">
                 <svg
@@ -78,6 +123,7 @@ export default function HeroFormCenterAlignedSearchWithTags() {
                 </svg>
               </div>
               {/* End SVG Element */}
+
               {/* SVG Element */}
               <div className="hidden md:block absolute bottom-0 start-0 translate-y-10 -translate-x-32">
                 <svg

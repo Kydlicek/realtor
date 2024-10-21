@@ -1,120 +1,131 @@
 from typing import Dict, List, Optional
-
+import re  # Importing regex for city parsing
+import json
+import requests
 
 class Listing:
-    def __init__(self, data: Dict):
-        self.hash_id = data["recommendations_data"].get("hash_id", "")
+    def __init__(self, msg: Dict): 
+        data = json.loads(msg['page_data'])
+        self.hash_id = msg['hash_id']
+        # User and transaction details
+        
+        self.user_id = None  # ID of the user managing the property
+        self.transaction = msg['transaction']
+        self.property_type = msg['property_type']
 
-        # Extract various property info
-        self.prop_info = self.extract_property_info(data)
+        # GPS coordinates (latitude and longitude only)
+        self.gps = self.extract_gps(data)
+
+        # Extract city and city part
+        self.city,self.city_part,self.street = self.extract_city_info(data)
+        self.size_m2 = self.find_in_items(data,'Užitná ploch')
+        self.size_kk = data.get("size_kk", None)
 
         # Extract price details
         self.price = self.extract_pricing_info(data)
 
-        # Extract location details
-        self.location = self.extract_location_info(data)
+        # Extract additional property details
+        self.additional_info = self.extract_additional_info(data)
 
         # Extract images
         self.images = self.extract_images(data)
 
-        # SEO and Description
-        self.seo = data.get("seo", "")
-        self.description = data.get("text", {}).get("value", "")
-        self.meta_description = data.get("meta_description", "")
+        self.description = data.get("description", None)
+        self.contact = self.extract_contact_info(data)
 
-        # Renting details
-        self.renting_details = self.extract_renting_details(data)
-
-        # Landlord details with error handling
-        self.landlord = self.extract_landlord_info(data)
-
-        # Neighborhood and contact info (from updated JSON)
-        self.neighborhood = data.get("neighborhood", {})
-        self.contact = data.get("contact", {})
-
-        # Pricing details from the updated JSON structure
-        self.pricing_details = data.get("pricing_details", {})
+        # RK involvement
+        self.RK = data.get("RK", False)
 
         # URL generation
         self.url = f"https://www.sreality.cz/detail/x/x/x/x/{self.hash_id}"
 
-    def extract_property_info(self, data: Dict) -> Dict:
-        prop_info = {
-            "last_update": "",
-            "material": "",
-            "ownership": "",
-            "prop_level": "",
-            "size_m2": "",
-            "energy_mark": "",
-            "furnished": "",
+    
+    def find_in_items(self,data,name):
+        items = data['items']
+        for dic in items:
+            if dic['name'] == name:
+                return (dic['value'])
+            
+    def extract_gps(self, data: Dict) -> Dict:
+        # Extract only the GPS coordinates (latitude and longitude)
+        return {
+            "lat": data.get("map", {}).get("lat", None),
+            "lon": data.get("map", {}).get("lon", None)
         }
 
-        # Process the items for property info
-        for el in data.get("items", []):
-            if el["name"] == "Aktualizace":
-                prop_info["last_update"] = el.get("value", "")
+    def extract_city_info(self, data):
+        full_address = data['locality']['value']
+        street = None
+        city_name = None
+        city_part = None
+        
+        if full_address:
+            # Split the input string by comma to separate street from city
+            parts = full_address.split(',')
+            
+            if len(parts) > 1:
+                street = parts[0].strip()  # Extract street
+                city_full = parts[1].strip()  # The part containing city info (city and possibly a part)
+                
+                # Match the city and city part using regex, works for any city
+                match = re.match(r"([^\d-]+)\s?(\d+)?", city_full)
+                if match:
+                    city_name = match.group(1).strip()  # Extracts the city name
+                    city_part = match.group(2) if match.group(2) else None  # Extracts city part (if present)
+                    city_part = city_part.strip()
 
-            elif el["name"] == "Stavba":
-                prop_info["material"] = el.get("value", "")
-
-            elif el["name"] == "Vlastnictví":
-                prop_info["ownership"] = el.get("value", "")
-
-            elif el["name"] == "Podlaží":
-                prop_info["prop_level"] = el.get("value", "")
-
-            elif el["name"] == "Užitná plocha":
-                prop_info["size_m2"] = el.get("value", "")
-
-            elif el["name"] == "Energetická náročnost budovy":
-                prop_info["energy_mark"] = el.get("value_type", "")
-
-            elif el["name"] == "Vybavení":
-                prop_info["furnished"] = el.get("value", "")
-
-        # Override energy mark if present in recommendations_data
-        if data["recommendations_data"].get("energy_efficiency_rating_cb"):
-            prop_info["energy_mark"] = data["recommendations_data"].get(
-                "energy_efficiency_rating_cb", ""
-            )
-
-        return prop_info
+        return  city_name, city_part, street
+    
+        
 
     def extract_pricing_info(self, data: Dict) -> Dict:
-        # Safely extract price data with defaults
         try:
             return {
-                "rent": data["price_czk"]["value_raw"],
-                "deposit": None,
-                "services": data.get("services_price", ""),
-                "energy": None,
-                "rk": None,
-                "add": data.get("add_price_info", ""),
+                "monthly_rent": data["price_czk"]["value_raw"],
+                "energy_utilities": data.get("energy_utilities", 0),
+                "downpayment": data.get("downpayment", 0),
+                "rk_fee": data.get("rk_fee", 0),            # Real estate agent fee
+                "currency": "czk",
+                "total_first_time": (
+                    data["price_czk"]["value_raw"] + 
+                    data.get("energy_utilities", 0) + 
+                    data.get("downpayment", 0) + 
+                    data.get("rk_fee", 0)
+                ),
+                "recurring_monthly": (
+                    data["price_czk"]["value_raw"] + 
+                    data.get("energy_utilities", 0)
+                )
             }
         except KeyError:
             return {
-                "rent": None,
-                "deposit": None,
-                "services": None,
-                "energy": None,
-                "rk": None,
-                "add": None,
+                "monthly_rent": None,
+                "energy_utilities": None,
+                "downpayment": None,
+                "rk_fee": None,
+                "currency": None,
+                "total_first_time": None,
+                "recurring_monthly": None,
             }
 
-    def extract_location_info(self, data: Dict) -> Dict:
-        address = data.get("locality", {}).get("value", "").split(",")
-        city = address[1].split("-") if len(address) > 1 else [address[0], ""]
-        city_part = city[1].strip() if len(city) > 1 else None
+    def extract_additional_info(self, data: Dict) -> Dict:
+        try:
+            rec_data = data.get('recommendations_data', {})
+            additional_info = {
+                "floor": self.find_in_items(data, 'Podlaží')[0] if self.find_in_items(data, 'Podlaží') else None,
+                "balcony": rec_data.get("balcony", None),
+                "cellar": rec_data.get("cellar", None),
+                "garden_size_m2": rec_data.get("garden_size_m2", None),
+                "garage": rec_data.get("garage", None),
+                "bedrooms": rec_data.get("bedrooms", None),
+                "furnished": self.find_in_items(data, 'Vybavení') if self.find_in_items(data, 'Vybavení') else None,
+                "materials": self.find_in_items(data, 'Stavba') if self.find_in_items(data, 'Stavba') else None,
+                "energy_class": self.find_in_items(data, 'Energetická náročnost budovy')[6:7] if len(self.find_in_items(data, 'Energetická náročnost budovy')) >= 7 else None
+            }
+            return additional_info
+        except Exception as e:
+            pass
 
-        return {
-            "city": city[0].strip(),
-            "city_part": city_part,
-            "street": address[0] if address else "",
-            "gps": {
-                "lat": data.get("map", {}).get("lat", None),
-                "lon": data.get("map", {}).get("lon", None),
-            },
-        }
 
     def extract_images(self, data: Dict) -> List[str]:
         # Extract image URLs from the data
@@ -123,43 +134,45 @@ class Listing:
             for img in data.get("_embedded", {}).get("images", [])
         ]
 
-    def extract_renting_details(self, data: Dict) -> Dict:
-        # Extract renting details with fallbacks
-        return {
-            "rent_date_available": data.get("move_in_date", ""),
-            "rental_period_min": data.get("rental_period_min", None),
-            "pets": data.get("pets", None),
-            "max_tenants": data.get("max_tenants", None),
-            "smoking": data.get("smoking", None),
-            "rental_period_max": data.get("rental_period_max", None),
-        }
-
-    def extract_landlord_info(self, data: Dict) -> Dict:
-        # Handle errors when extracting landlord information
+    def extract_contact_info(self, data: Dict) -> Dict:
         try:
             return {
                 "name": data["_embedded"]["seller"]["user_name"],
-                "phone": f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
                 "email": data["_embedded"]["seller"]["_embedded"]["premise"]["email"],
+                "phone": f'+{data["_embedded"]["seller"]["phones"][0]["code"]} {data["_embedded"]["seller"]["phones"][0]["number"]}',
             }
         except (KeyError, IndexError, TypeError):
             return {"name": None, "phone": None, "email": None}
-        
+
     def to_dict(self) -> Dict:
-        # Return all the attributes of the instance as a dictionary
+        # Return all the attributes of the instance as a dictionary matching your MongoDB schema
         return {
-            "hash_id": self.hash_id,
-            "prop_info": self.prop_info,
+            "hash_id": self.hash_id,                     # Assuming hash_id is used as _id
+            "user_id": self.user_id,
+            "transaction": self.transaction,
+            "property_type": self.property_type,
+            "city": self.city,
+            "city_part": self.city_part,             # Adding the city_part
+            "street": self.street,
+            "size_m2": self.size_m2,
+            "size_kk": self.size_kk,
             "price": self.price,
-            "location": self.location,
-            "images": self.images,
-            "seo": self.seo,
-            "description": self.description,
-            "meta_description": self.meta_description,
-            "renting_details": self.renting_details,
-            "landlord": self.landlord,
-            "neighborhood": self.neighborhood,
+            "RK": self.RK,
             "contact": self.contact,
-            "pricing_details": self.pricing_details,
-            "url": self.url,
+            "additional_info": self.additional_info,
+            "description": self.description,
+            "photos": self.images,
+            "GPS": self.gps,
+            "url": self.url
         }
+    
+    
+
+#this is only for debugging in case everything work fine just comment the code bellow
+
+# url = 'https://www.sreality.cz/api/cs/v2/estates/2293465676'
+# response = requests.get(url, headers={"user-agent": "Mozilla/5.0"})
+# response.raise_for_status()
+# page_data = response.text
+# # print(page_data)
+# print(Listing(page_data).to_dict())
