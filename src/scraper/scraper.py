@@ -148,7 +148,8 @@ class Scraper:
 
             # Declare the queue (make sure it's the same as the consumer's)
             channel.queue_declare(queue=QUEUE_NAME, durable=True)
-
+           
+            
             # Send the URL as the message to the queue
             channel.basic_publish(
                 exchange='',

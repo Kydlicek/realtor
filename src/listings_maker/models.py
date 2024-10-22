@@ -6,7 +6,7 @@ import requests
 class Listing:
     def __init__(self, msg: Dict): 
         data = json.loads(msg['page_data'])
-        self.hash_id = msg['hash_id']
+        self.hash_id = str(msg['hash_id'])
         # User and transaction details
         
         self.user_id = None  # ID of the user managing the property
@@ -70,10 +70,10 @@ class Listing:
                 # Match the city and city part using regex, works for any city
                 match = re.match(r"([^\d-]+)\s?(\d+)?", city_full)
                 if match:
-                    city_name = match.group(1).strip()  # Extracts the city name
+                    city_name = match.group(1).strip().lower()  # Extracts the city name
                     city_part = match.group(2) if match.group(2) else None  # Extracts city part (if present)
                     city_part = city_part.strip()
-
+                street = str(street).lower()
         return  city_name, city_part, street
     
         
@@ -174,5 +174,4 @@ class Listing:
 # response = requests.get(url, headers={"user-agent": "Mozilla/5.0"})
 # response.raise_for_status()
 # page_data = response.text
-# # print(page_data)
 # print(Listing(page_data).to_dict())

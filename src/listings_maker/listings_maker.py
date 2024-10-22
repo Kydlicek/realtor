@@ -43,7 +43,7 @@ def wait_for_rabbitmq_connection(max_retries=10, delay=10):
 def process_message(ch, method, properties, body):
     try:
         message = json.loads(body)
-        logger.info(f"Received message: {message}")
+        logger.info(f"Received message: {message['hash_id']}")
         url = message['url']
         # Scrape the URL
         response = requests.get(url, headers={"user-agent": "Mozilla/5.0"})
@@ -107,15 +107,15 @@ def start_consumer():
     logger.info(f"Waiting for messages in {QUEUE_NAME} queue. To exit press CTRL+C")
     channel.start_consuming()
 
-# if __name__ == "__main__":
-#     start_consumer()
-
 if __name__ == "__main__":
-    test_message = json.dumps({
-        'property_type': 'house',
-        'transaction': 'rent',
-        'url': 'https://www.sreality.cz/api/cs/v2/estates/997425740',
-        'hash_id':'997425740'
-    })
+    start_consumer()
 
-    process_message(None, None, None, test_message)
+# if __name__ == "__main__":
+    # test_message = json.dumps({
+    #     'property_type': 'house',
+    #     'transaction': 'rent',
+    #     'url': 'https://www.sreality.cz/api/cs/v2/estates/997425740',
+    #     'hash_id':'997425740'
+    # })
+
+    # process_message(None, None, None, test_message)

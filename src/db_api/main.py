@@ -65,17 +65,16 @@ def item_serializer(item):
 
 @app.post("/add")
 async def add_property(property: Property):  # Ensure Pydantic validation works
-    property_data = None  # Initialize property_data to avoid the unbound variable issue
     try:
         # Determine collection based on the transaction type (rent or buy)
         collection_name = "rents" if property.transaction == "rent" else "buys"
         collection = db[collection_name]
-
-        # Convert the Pydantic model to a dictionary
-        property_data = property.dict()
-
+        
+        # Convert Pydantic model to dictionary
+        property_dict = property.dict()
+        
         # Insert into the appropriate collection
-        result = collection.insert_one(property_data)
+        result = collection.insert_one(property_dict)
 
         # Log and return the inserted property ID
         logger.info(f"Inserted property with ID {result.inserted_id} into '{collection_name}' collection")
@@ -83,8 +82,8 @@ async def add_property(property: Property):  # Ensure Pydantic validation works
 
     except Exception as e:
         logger.error(f"Error adding property: {str(e)}")
-        if property_data:
-            logger.error(f"Property data at error: {property_data}")
+        if property:
+            logger.error(f"Property data at error: {property}")
         raise HTTPException(status_code=500, detail=f"Error adding property: {str(e)}")
 
 # Search items by parameters

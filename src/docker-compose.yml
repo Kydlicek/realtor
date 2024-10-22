@@ -37,7 +37,7 @@ services:
       - internal_network
     restart: always  # Automatically restart the service
     deploy:
-      replicas: 2
+      replicas: 6
 
   frontend_api:
     build: ./frontend_api
