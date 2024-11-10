@@ -1,0 +1,72 @@
+version: "3"
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: "rabbitmq"
+    ports:
+      - "5672:5672" # RabbitMQ broker port
+      - "15672:15672" # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    networks:
+      - internal_network
+
+  scraper:
+    build: ./scraper # Scraper producer service
+    container_name: scraper
+    environment:
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASS=${RABBITMQ_PASS}
+      - DB_API_URL=${DB_API_URL}
+    depends_on:
+      - rabbitmq
+    networks:
+      - internal_network
+
+  listings_maker:
+    build: ./listings_maker # listings_maker consumer
+    container_name: listings_maker
+    environment:
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASS=${RABBITMQ_PASS}
+      - DB_API_URL=${DB_API_URL}
+    depends_on:
+      - rabbitmq
+      - scraper
+    networks:
+      - internal_network
+    restart: always # Automatically restart on failure
+
+  db_api:
+    build: ./db_api
+    container_name: db_api_service
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASS=${RABBITMQ_PASS}
+    depends_on:
+      - db
+    networks:
+      - internal_network
+
+  db:
+    image: mongo:4.4
+    container_name: mongo_db
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - internal_network
+
+networks:
+  internal_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
