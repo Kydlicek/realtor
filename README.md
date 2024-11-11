@@ -165,11 +165,26 @@ The application checks and handles missing or incorrect configurations:
 
 ---
 
-## 🔮 Future Enhancements
+## 🆕 Upcoming Features and Improvements
 
-- **Analytics**: Add performance tracking for the scraper.
-- **Enhanced Error Handling**: More specific exception handling and retry mechanisms.
-- **Notification System**: Send alerts or notifications for new or specific types of listings.
+This project is continuously evolving, with planned enhancements focused on improving data quality, usability, and extensibility. Here’s a look at some of the upcoming features and improvements:
+
+### 1. **Enhanced Data Cleaning and Validation**
+   - **Improved Data Consistency**: Implementing advanced cleaning rules to standardize property data, ensuring consistent formatting across all fields (e.g., uniform city names, standardized price and size formats).
+   - **Automatic Error Detection**: Identifying and handling common data issues like incomplete or duplicate listings, reducing noise in the dataset.
+   - **Customizable Cleaning Pipelines**: Allowing users to configure data cleaning steps based on their needs, enhancing flexibility for different applications.
+
+### 2. **Extended Filtering and Search Options**
+   - **Additional Query Parameters**: Adding more filters to refine search results, such as property age, building materials, and energy efficiency ratings.
+   - **Dynamic Range Filtering**: Enabling range-based filtering for fields like `price` and `size_m2`, allowing users to specify minimum and maximum values.
+
+### 3. **Data Enrichment and Analytics**
+   - **Automated Data Enrichment**: Integrating additional sources to enrich listings with data like neighborhood amenities, historical pricing trends, and estimated property value.
+   - **Analytics and Reporting**: Adding basic analytics to summarize listings, identify trends, and visualize data distributions (e.g., price distribution by city).
+
+### 4. **Notification and Alert System**
+   - **User-Defined Notifications**: Allowing users to set alerts for new listings that match specific criteria, making it easier to stay updated on relevant properties.
+   - **Scheduled Summaries**: Generating periodic summaries of new or notable listings to keep users informed.
 
 ---
 
@@ -178,3 +193,5 @@ The application checks and handles missing or incorrect configurations:
 This project is open-source and available under the [MIT License](LICENSE).
 
 ---
+
+
