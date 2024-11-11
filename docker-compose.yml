@@ -20,6 +20,10 @@ services:
       - RABBITMQ_PASS=${RABBITMQ_PASS}
       - DB_API_URL=${DB_API_URL}
       - QUEUE_NAME=${QUEUE_NAME}
+      - SCRAPE_INTERVAL=${SCRAPE_INTERVAL}
+      - SCRAPE_ALL=${SCRAPE_ALL}
+      - PROPERTY_TYPE=${PROPERTY_TYPE}
+      - TRANSACTION_TYPE=${TRANSACTION_TYPE}
     depends_on:
       - rabbitmq
     networks:

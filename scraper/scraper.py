@@ -11,17 +11,43 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logging.getLogger("pika").setLevel(logging.WARNING)
 
-# RabbitMQ settings
+# RabbitMQ settings with error handling for required variables
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
-RABBITMQ_USER = os.getenv("RABBITMQ_USER")
-RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
-QUEUE_NAME = os.getenv("QUEUE_NAME")
-DB_API_URL = os.getenv("DB_API_URL")
+if not RABBITMQ_HOST:
+    logger.error("RABBITMQ_HOST is not set in the environment.")
+    raise EnvironmentError("Missing required environment variable: RABBITMQ_HOST")
 
-SCRAPING_INTERVAL = os.getenv("SCRAPING_INTERVAL")
-SCRAPE_ALL = os.getenv("SCRAPE_ALL", "false").lower() == "true"
-PROPERTY_TYPE = int(os.getenv("PROPERTY_TYPE", 1))
-TRANSACTION_TYPE = int(os.getenv("TRANSACTION_TYPE", 2))
+RABBITMQ_USER = os.getenv("RABBITMQ_USER")
+if not RABBITMQ_USER:
+    logger.error("RABBITMQ_USER is not set in the environment.")
+    raise EnvironmentError("Missing required environment variable: RABBITMQ_USER")
+
+RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
+if not RABBITMQ_PASS:
+    logger.error("RABBITMQ_PASS is not set in the environment.")
+    raise EnvironmentError("Missing required environment variable: RABBITMQ_PASS")
+
+QUEUE_NAME = os.getenv("QUEUE_NAME", "urls_queue")  # Default queue name if not provided
+DB_API_URL = os.getenv(
+    "DB_API_URL", "http://localhost:8000"
+)  # Default to localhost if not set
+
+# Scraper settings with default values
+SCRAPING_INTERVAL = int(os.getenv("SCRAPING_INTERVAL", 86400))  # Default to 24 hours
+SCRAPE_ALL = os.getenv("SCRAPE_ALL").lower() == "true"
+PROPERTY_TYPE = int(os.getenv("PROPERTY_TYPE", 1))  # Default to 1 (Flats)
+TRANSACTION_TYPE = int(os.getenv("TRANSACTION_TYPE", 2))  # Default to 2 (Rent)
+
+# Log the loaded settings for verification
+logger.info("Loaded RabbitMQ and scraper settings:")
+logger.info(f"RABBITMQ_HOST: {RABBITMQ_HOST}")
+logger.info(f"RABBITMQ_USER: {RABBITMQ_USER}")
+logger.info(f"QUEUE_NAME: {QUEUE_NAME}")
+logger.info(f"DB_API_URL: {DB_API_URL}")
+logger.info(f"SCRAPING_INTERVAL: {SCRAPING_INTERVAL}")
+logger.info(f"SCRAPE_ALL: {SCRAPE_ALL}")
+logger.info(f"PROPERTY_TYPE: {PROPERTY_TYPE}")
+logger.info(f"TRANSACTION_TYPE: {TRANSACTION_TYPE}")
 
 
 class Scraper:
@@ -155,7 +181,7 @@ class Scraper:
 
     def run(self):
         self.connect_to_rabbitmq()
-        self.scrape_all()
+        self.scrape_pages(1, 5)
         self.send_to_queue()
 
 
