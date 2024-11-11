@@ -59,8 +59,6 @@ The Sreality Real Estate Scraper offers versatile applications across the real e
 
 ---
 
-These use cases showcase the broad applicability of the Sreality Real Estate Scraper for real estate professionals, data analysts, and researchers alike.
-
 ## 🛠 Tech Stack
 
 - **Docker**: Containerization of the application for easy deployment and scalability
