@@ -1,7 +1,3 @@
-Here’s the updated `README.md` with a section on querying options:
-
----
-
 # 🏡 Sreality Real Estate Scraper
 
 A Python-based scraper designed to collect real estate listings from a major Czech website. This project includes a FastAPI service to provide access to the scraped data and manage configurations. Built as a microservices-based system, it’s Dockerized for easy deployment, enabling efficient data collection, storage, and processing based on customizable parameters. The architecture is designed for extensibility, allowing users to build additional services or enhance the existing API.
