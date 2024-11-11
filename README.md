@@ -1,22 +1,24 @@
-Here's a comprehensive `README.md` for your scraper project, incorporating all the configurations and setup instructions:
+Here’s the updated `README.md` with a section on querying options:
 
 ---
 
 # 🏡 Sreality Real Estate Scraper
 
-A FastAPI-based scraper designed to collect real estate listings from a major Czech website. This project is Dockerized for easy deployment, allowing you to collect, store, and process data on properties based on customizable parameters.
+A Python-based scraper designed to collect real estate listings from a major Czech website. This project includes a FastAPI service to provide access to the scraped data and manage configurations. Built as a microservices-based system, it’s Dockerized for easy deployment, enabling efficient data collection, storage, and processing based on customizable parameters. The architecture is designed for extensibility, allowing users to build additional services or enhance the existing API.
 
 ---
 
 ## 📋 Table of Contents
 
 - [Features](#features)
+- [Tech Stack](#tech-stack)
 - [Requirements](#requirements)
 - [Setup](#setup)
 - [Configuration](#configuration)
 - [Running the Project](#running-the-project)
 - [Environment Variables](#environment-variables)
 - [Usage](#usage)
+- [API Query Parameters](#api-query-parameters)
 - [Error Handling](#error-handling)
 - [Future Enhancements](#future-enhancements)
 
@@ -27,8 +29,19 @@ A FastAPI-based scraper designed to collect real estate listings from a major Cz
 - Scrapes real estate listings based on customizable filters
 - Stores listing data in MongoDB
 - Publishes scraped URLs to RabbitMQ for further processing
+- Includes a FastAPI service for data access and configuration management
 - Configurable scrape intervals and scraping parameters
+- Microservices architecture for easy extensibility with additional features and integrations
 - Automatically reconnects to RabbitMQ if the connection is interrupted
+
+---
+
+## 🛠 Tech Stack
+
+- **Docker**: Containerization of the application for easy deployment and scalability
+- **FastAPI**: Lightweight web framework for building APIs, used for data access and configuration management
+- **RabbitMQ**: Message broker to handle URL publication and manage further processing tasks
+- **MongoDB**: NoSQL database for storing the scraped listings in a structured format
 
 ---
 
@@ -114,7 +127,31 @@ The scraper can be configured to run continuously in a loop based on `SCRAPING_I
 - **Scrape All**: Set `SCRAPE_ALL=true` to scrape all property types and transaction types.
 - **Specific Types**: Set `SCRAPE_ALL=false` and use `PROPERTY_TYPE` and `TRANSACTION_TYPE` to filter specific properties.
 
-The scraped data is stored in MongoDB and sent to RabbitMQ for additional processing. You can view logs for details on scraped listings and connections.
+The scraped data is stored in MongoDB across two collections, organized by property type: **flats** and **houses**. The scraper publishes URLs to RabbitMQ for additional processing, enabling further actions on the collected listings. You can view logs for details on scraped listings and connections.
+
+---
+
+## 🌐 FastAPI Service
+
+This project includes a FastAPI service that provides data access to the scraped listings and allows for configurable settings. Currently, it supports fetching functions but can be customized for other data operations based on user needs. The modular microservices architecture makes it easy to extend the API with additional endpoints or connect other services to enhance functionality.
+
+---
+
+## 🔍 API Query Parameters
+
+The FastAPI service allows querying of the listings database with the following parameters, giving flexibility for targeted searches:
+
+- **`collection_name`** (str): The collection to query, such as **flats** or **houses**.
+- **`hash_id`** (Optional[str]): A unique identifier for each listing.
+- **`id`** (Optional[str]): An alternative identifier if needed.
+- **`property_type`** (Optional[str]): Specify the type of property (e.g., flat, house).
+- **`transaction`** (Optional[str]): The type of transaction (e.g., buy, rent).
+- **`city`** (Optional[str]): Filter listings by city.
+- **`price`** (Optional[float]): Set a maximum price for the listings.
+- **`size_m2`** (Optional[int]): Specify a minimum size in square meters.
+- **`rk`** (Optional[bool]): Boolean to filter based on listings with or without a real estate agent involved.
+
+These parameters enable precise querying, making the API versatile for a variety of applications or custom integrations.
 
 ---
 
@@ -141,5 +178,3 @@ The application checks and handles missing or incorrect configurations:
 This project is open-source and available under the [MIT License](LICENSE).
 
 ---
-
-Let me know if you need additional information or have any questions!
