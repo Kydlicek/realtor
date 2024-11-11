@@ -32,10 +32,6 @@ A Python-based scraper designed to collect real estate listings from a major Cze
 
 ---
 
-Certainly, here’s a streamlined version of the use cases for the `README.md`:
-
----
-
 ## 💡 Use Cases
 
 The Sreality Real Estate Scraper offers versatile applications across the real estate and data analytics sectors:
