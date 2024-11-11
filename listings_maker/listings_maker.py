@@ -2,22 +2,24 @@ import pika
 import requests
 import json
 import logging
-from models import Listing 
+from data_formatter import Listing
 import os
 import time
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.getLogger("pika").setLevel(logging.WARNING)
 
 # Define RabbitMQ settings
-RABBITMQ_HOST = os.getenv('RABBITMQ_HOST')
-RABBITMQ_USER = os.getenv('RABBITMQ_USER')
-RABBITMQ_PASS = os.getenv('RABBITMQ_PASS' )
-QUEUE_NAME = 'urls_queue'
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
+RABBITMQ_USER = os.getenv("RABBITMQ_USER")
+RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
+QUEUE_NAME = os.getenv("QUEUE_NAME")
 
 # Define the database API URL
-DB_API_URL = os.getenv('DB_API_URL')
+DB_API_URL = os.getenv("DB_API_URL")
+
 
 def wait_for_rabbitmq_connection(max_retries=10, delay=10):
     """
@@ -28,13 +30,17 @@ def wait_for_rabbitmq_connection(max_retries=10, delay=10):
         try:
             # Try to establish the connection to RabbitMQ
             credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+            )
             connection.close()  # Close immediately after testing the connection
             logger.info("Successfully connected to RabbitMQ.")
             return True
         except pika.exceptions.AMQPConnectionError as e:
             retries += 1
-            logger.warning(f"Failed to connect to RabbitMQ. Retrying in {delay} seconds... (Attempt {retries}/{max_retries})")
+            logger.warning(
+                f"Failed to connect to RabbitMQ. Retrying in {delay} seconds... (Attempt {retries}/{max_retries})"
+            )
             time.sleep(delay)
 
     logger.error(f"Failed to connect to RabbitMQ after {max_retries} retries.")
@@ -43,21 +49,21 @@ def wait_for_rabbitmq_connection(max_retries=10, delay=10):
 
 def process_message(ch, method, properties, body):
     headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Connection": "keep-alive",
-}
-    
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Connection": "keep-alive",
+    }
+
     try:
         message = json.loads(body)
         logger.info(f"Received message: {message['hash_id']}")
-        url = message['url']
+        url = message["url"]
         # Scrape the URL
         response = requests.get(url, headers=headers)
         response.raise_for_status()  # Raise exception for 4xx/5xx errors
-        message['page_data'] = response.text
+        message["page_data"] = response.text
 
         listing = Listing(message).to_dict()
         # Send the processed listing object to the database API's /add endpoint
@@ -92,6 +98,7 @@ def process_message(ch, method, properties, body):
         if ch is not None:
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
+
 def start_consumer():
     """
     Start the RabbitMQ consumer and listen for messages from the queue.
@@ -114,11 +121,19 @@ def start_consumer():
     # Set up basic consume to listen for messages
     channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue=QUEUE_NAME, on_message_callback=process_message)
-    
-
 
     logger.info(f"Waiting for messages in {QUEUE_NAME} queue. To exit press CTRL+C")
     channel.start_consuming()
 
+
 if __name__ == "__main__":
     start_consumer()
+    # test_message = json.dumps(
+    #     {
+    #         "property_type": "flats",
+    #         "transaction": "rent",
+    #         "url": "https://www.sreality.cz/api/cs/v2/estates/66769484",
+    #         "hash_id": "66769484",
+    #     }
+    # )
+    # process_message(None, None, None, test_message)
