@@ -107,19 +107,6 @@ With Docker Compose:
 docker-compose up --build
 ```
 
-Without Docker:
-1. Ensure MongoDB and RabbitMQ are running.
-2. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the FastAPI application:
-   ```bash
-   uvicorn main:app --host 0.0.0.0 --port ${APP_PORT}
-   ```
-
----
-
 ## 📌 Usage
 
 The scraper can be configured to run continuously in a loop based on `SCRAPING_INTERVAL`. It supports different modes for scraping:
