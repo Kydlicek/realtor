@@ -1,4 +1,3 @@
-version: "3"
 services:
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -20,19 +19,22 @@ services:
       - RABBITMQ_USER=${RABBITMQ_USER}
       - RABBITMQ_PASS=${RABBITMQ_PASS}
       - DB_API_URL=${DB_API_URL}
+      - QUEUE_NAME=${QUEUE_NAME}
     depends_on:
       - rabbitmq
     networks:
       - internal_network
 
   listings_maker:
-    build: ./listings_maker # listings_maker consumer
-    container_name: listings_maker
+    build: ./listings_maker # listings_maker consumer service
     environment:
       - RABBITMQ_HOST=${RABBITMQ_HOST}
       - RABBITMQ_USER=${RABBITMQ_USER}
       - RABBITMQ_PASS=${RABBITMQ_PASS}
       - DB_API_URL=${DB_API_URL}
+      - QUEUE_NAME=${QUEUE_NAME}
+    deploy:
+      replicas: 3
     depends_on:
       - rabbitmq
       - scraper
@@ -44,12 +46,10 @@ services:
     build: ./db_api
     container_name: db_api_service
     ports:
-      - "8000:8000"
+      - "${APP_PORT}:${APP_PORT}" #
     environment:
       - MONGO_URL=${MONGO_URL}
-      - RABBITMQ_HOST=${RABBITMQ_HOST}
-      - RABBITMQ_USER=${RABBITMQ_USER}
-      - RABBITMQ_PASS=${RABBITMQ_PASS}
+      - APP_PORT=${APP_PORT}
     depends_on:
       - db
     networks:

@@ -15,9 +15,10 @@ app = FastAPI()
 
 # Use MongoDB container's URL (db) provided by Docker Compose
 MONGO_URL = getenv("MONGO_URL")
-MONGO_DB_CLIENT = getenv('MONGO_DB_CLIENT')
+MONGO_DB_CLIENT = str(getenv("MONGO_DB_CLIENT"))
 client = MongoClient(MONGO_URL)
 db = client[MONGO_DB_CLIENT]
+
 
 # Convert ObjectId to string for returning items
 def item_serializer(item):
@@ -39,7 +40,6 @@ async def add_property(property: Property):
         raise HTTPException(status_code=500, detail="Error adding property.")
 
 
-
 @app.get("/{collection_name}")
 async def find_by_parameter(
     collection_name: str,
@@ -47,19 +47,20 @@ async def find_by_parameter(
     id: Optional[str] = None,
     property_type: Optional[str] = None,
     city: Optional[str] = None,
-    price: Optional[float] = None,  
+    price: Optional[float] = None,
     size_m2: Optional[int] = None,
     rk: Optional[bool] = None,
 ):
 
     collection = db[collection_name]
-    logger.info(f"Searching items in collection '{collection_name}' with provided parameters")
+    logger.info(
+        f"Searching items in collection '{collection_name}' with provided parameters"
+    )
 
-  
     query = {}
 
     if id:
-        query["_id"] = ObjectId(id)  
+        query["_id"] = ObjectId(id)
     if hash_id:
         query["hash_id"] = hash_id
     if property_type:
@@ -68,7 +69,7 @@ async def find_by_parameter(
         query["city"] = city
     if rk:
         query["rk"] = rk
-    
+
     if size_m2 is not None:
         query["size_m2"] = {"$lt": size_m2}
 
@@ -76,19 +77,25 @@ async def find_by_parameter(
 
     try:
         results = collection.find(query)
-        results_list = []
-    
-        logging.info(f'count of results for query {len(results)}')
-        for result in results:
-            result["_id"] = str(result["_id"])  
-            results_list.append(result)
+        results_list = list(results)  # Convert cursor to list here
 
-       
+        logging.info(
+            f"count of results for query {len(results_list)}"
+        )  # Now you can use len() safely
+
+        for result in results_list:
+            result["_id"] = str(result["_id"])
+
         if not results_list:
-            raise HTTPException(status_code=404, detail="No items found matching the query parameters.")
-        
+            raise HTTPException(
+                status_code=404, detail="No items found matching the query parameters."
+            )
+
         return {"results": results_list}
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
-        raise HTTPException(status_code=500, detail="An internal error occurred while processing the request.")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred while processing the request.",
+        )

@@ -9,14 +9,20 @@ import time
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.getLogger("pika").setLevel(logging.WARNING)
 
 # RabbitMQ settings
-RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'rabbitmq')
-RABBITMQ_USER = os.getenv('RABBITMQ_USER', 'user')
-RABBITMQ_PASS = os.getenv('RABBITMQ_PASS', 'password')
-QUEUE_NAME = 'urls_queue'
-DB_API_URL = os.getenv('DB_API_URL')
-TIME_BETWEEN_SCRAPES = 600
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
+RABBITMQ_USER = os.getenv("RABBITMQ_USER")
+RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
+QUEUE_NAME = os.getenv("QUEUE_NAME")
+DB_API_URL = os.getenv("DB_API_URL")
+
+SCRAPING_INTERVAL = os.getenv("SCRAPING_INTERVAL")
+SCRAPE_ALL = os.getenv("SCRAPE_ALL", "false").lower() == "true"
+PROPERTY_TYPE = int(os.getenv("PROPERTY_TYPE", 1))
+TRANSACTION_TYPE = int(os.getenv("TRANSACTION_TYPE", 2))
+
 
 class Scraper:
     def __init__(self, category_main, category_type):
@@ -28,7 +34,7 @@ class Scraper:
         self.per_page = 60
         self.all_props = []
         self.update_url()
-        
+
         page_info = self.get_page(self.url)
         self.res_length = page_info["result_size"] if page_info else 0
 
@@ -54,7 +60,9 @@ class Scraper:
             return None
 
     def hash_exists(self, hash_id, property_type):
-        response = requests.get(f"{DB_API_URL}/{property_type}", params={"hash_id": hash_id})
+        response = requests.get(
+            f"{DB_API_URL}/{property_type}", params={"hash_id": hash_id}
+        )
         return response.status_code == 200
 
     def connect_to_rabbitmq(self):
@@ -80,18 +88,27 @@ class Scraper:
 
             props = page_data["_embedded"]["estates"]
             for prop in props:
-                hash_id = prop['hash_id']
+                hash_id = prop["hash_id"]
                 url = f"https://www.sreality.cz/api/cs/v2/estates/{hash_id}"
-                property_type = 'flats' if self.category_main == 1 else 'houses'
-                transaction = 'rents' if self.category_type == 2 else 'buys'
-                
+                property_type = "flats" if self.category_main == 1 else "houses"
+                transaction = "rents" if self.category_type == 2 else "buys"
+
                 if not self.hash_exists(hash_id, property_type):
-                    obj = {'property_type': property_type, 'transaction': transaction, 'url': url, 'hash_id': hash_id}
+                    obj = {
+                        "property_type": property_type,
+                        "transaction": transaction,
+                        "url": url,
+                        "hash_id": hash_id,
+                    }
+
                     self.all_props.append(obj)
                 else:
-                    break
 
-            logger.info(f"Scraped page {self.page_num} of {end_page - 1} || Listings: {len(self.all_props)}")
+                    pass
+
+            logger.info(
+                f"Scraped page {self.page_num} of {end_page - 1} || Listings: {len(self.all_props)}"
+            )
 
     def scrape_all(self):
         pages_to_scrape = self.res_length // self.per_page + 1
@@ -102,13 +119,19 @@ class Scraper:
         while retries < max_retries:
             try:
                 credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
-                connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+                connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(
+                        host=RABBITMQ_HOST, credentials=credentials
+                    )
+                )
                 connection.close()
                 logger.info("Successfully connected to RabbitMQ.")
                 return True
             except pika.exceptions.AMQPConnectionError as e:
                 retries += 1
-                logger.warning(f"Failed to connect to RabbitMQ. Retrying in {delay} seconds... (Attempt {retries}/{max_retries})")
+                logger.warning(
+                    f"Failed to connect to RabbitMQ. Retrying in {delay} seconds... (Attempt {retries}/{max_retries})"
+                )
                 time.sleep(delay)
 
         logger.error(f"Failed to connect to RabbitMQ after {max_retries} retries.")
@@ -121,10 +144,10 @@ class Scraper:
     def send_to_rabbitmq(self, url):
         try:
             self.channel.basic_publish(
-                exchange='',
+                exchange="",
                 routing_key=QUEUE_NAME,
                 body=json.dumps(url),
-                properties=pika.BasicProperties(delivery_mode=2)
+                properties=pika.BasicProperties(delivery_mode=2),
             )
             logger.info(f"Sent URL to RabbitMQ: {url}")
         except pika.exceptions.AMQPChannelError as e:
@@ -134,24 +157,27 @@ class Scraper:
         self.connect_to_rabbitmq()
         self.scrape_all()
         self.send_to_queue()
-        if self.connection:
-            self.connection.close()
-            logger.info("Closed RabbitMQ connection.")
+
 
 if __name__ == "__main__":
     while True:
-        parameters = [
-            (1, 2),  # Flats for rent
-            (1, 1),  # Flats for buy
-            (2, 1),  # Houses for buy
-            (2, 2)   # Houses for rent
-        ]
-        
+        # Determine if scraping all or specific types based on SCRAPE_ALL
+        if SCRAPE_ALL:
+            parameters = [
+                (1, 2),  # Flats for rent
+                (1, 1),  # Flats for buy
+                (2, 1),  # Houses for buy
+                (2, 2),  # Houses for rent
+            ]
+        else:
+            parameters = [(PROPERTY_TYPE, TRANSACTION_TYPE)]
+
         for param1, param2 in parameters:
             scraper = Scraper(param1, param2)
             if scraper.wait_for_rabbitmq_connection():
                 scraper.run()
             else:
                 logger.error("Could not establish connection to RabbitMQ. Exiting.")
-        logging.info('Crapinf finished now taking {TIME_BETWEEN_SCRAPES} sec nap')  
-        time.sleep(TIME_BETWEEN_SCRAPES)  # Wait for 10 minutes before the next run
+
+        logging.info(f"Scraping finished; now taking {SCRAPING_INTERVAL} sec nap")
+        time.sleep(SCRAPING_INTERVAL)  # Wait before the next run
