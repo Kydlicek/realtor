@@ -32,6 +32,39 @@ A Python-based scraper designed to collect real estate listings from a major Cze
 
 ---
 
+Certainly, here’s a streamlined version of the use cases for the `README.md`:
+
+---
+
+## 💡 Use Cases
+
+The Sreality Real Estate Scraper offers versatile applications across the real estate and data analytics sectors:
+
+### 1. **Market Analysis and Trends**
+   - Track pricing trends, analyze demand for property types, and monitor market fluctuations over time.
+
+### 2. **Data-Driven Real Estate Investment**
+   - Assist investors in identifying profitable properties by analyzing characteristics like price, size, and location.
+
+### 3. **Competitive Analysis for Real Estate Agencies**
+   - Enable agencies to monitor competitor listings, pricing strategies, and market positioning.
+
+### 4. **Automated Alerts for Potential Buyers**
+   - Set up notifications for buyers based on custom criteria, such as price range, location, or property type.
+
+### 5. **Property Valuation and Price Prediction Models**
+   - Develop predictive models to estimate property values using historical and real-time listing data.
+
+### 6. **Data Enrichment for Real Estate Websites**
+   - Enrich property listings with additional insights, like neighborhood pricing trends or market comparisons.
+
+### 7. **Research and Academic Studies**
+   - Provide a robust dataset for research on real estate trends, socioeconomic impacts on property prices, and urban development.
+
+---
+
+These use cases showcase the broad applicability of the Sreality Real Estate Scraper for real estate professionals, data analysts, and researchers alike.
+
 ## 🛠 Tech Stack
 
 - **Docker**: Containerization of the application for easy deployment and scalability
