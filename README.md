@@ -133,12 +133,6 @@ This project includes a FastAPI service that provides data access to the scraped
 
 ---
 
-The `README.md` looks well-organized and provides clear guidance for users on setup, configuration, usage, and querying options. The section for API query parameters and error handling is especially useful, as it gives users the flexibility to customize searches and handle potential issues effectively. 
-
-Here’s a minor improvement for consistency in wording and a bit more clarity:
-
----
-
 ## 🔍 API Query Parameters
 
 The FastAPI service allows querying of the listings database with the following parameters, offering flexibility for targeted searches.
