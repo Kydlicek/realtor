@@ -137,18 +137,29 @@ This project includes a FastAPI service that provides data access to the scraped
 
 ---
 
+The `README.md` looks well-organized and provides clear guidance for users on setup, configuration, usage, and querying options. The section for API query parameters and error handling is especially useful, as it gives users the flexibility to customize searches and handle potential issues effectively. 
+
+Here’s a minor improvement for consistency in wording and a bit more clarity:
+
+---
+
 ## 🔍 API Query Parameters
 
-The FastAPI service allows querying of the listings database with the following parameters, giving flexibility for targeted searches:
+The FastAPI service allows querying of the listings database with the following parameters, offering flexibility for targeted searches.
 
-- **`collection_name`** str: The collection to query, such as **flats** or **houses**.
-- **`hash_id`** str: A unique identifier for each listing.
-- **`id`** str: MongoDB identifier.
-- **`transaction`** str: The type of transaction (e.g., buys, rents).
-- **`city`** str: Filter listings by city.
-- **`price`** int: Set a maximum price for the listings.
-- **`size_m2`** int: Specify a minimum size in square meters.
-- **`rk`** bool: Boolean to filter based on listings with or without a real estate agent involved.
+- **Collection Name**: Specify either **flats** or **houses** based on the property type you wish to search.
+
+- **API Endpoint**: Most likely `http://0.0.0.0:8000/{collection_name}`, if the default configuration has not been modified.
+
+**Parameters**:
+
+- **`hash_id`** *(str)*: A unique identifier for each listing.
+- **`id`** *(str)*: MongoDB identifier.
+- **`transaction`** *(str)*: Type of transaction (e.g., "buy" or "rent").
+- **`city`** *(str)*: Filter listings by city name.
+- **`price`** *(int)*: Maximum price for the listings.
+- **`size_m2`** *(int)*: Minimum size in square meters.
+- **`rk`** *(bool)*: Filter listings based on the presence or absence of a real estate agent.
 
 These parameters enable precise querying, making the API versatile for a variety of applications or custom integrations.
 
