@@ -1,7 +1,3 @@
-Here’s the updated `README.md` with a section on querying options:
-
----
-
 # 🏡 Sreality Real Estate Scraper
 
 A Python-based scraper designed to collect real estate listings from a major Czech website. This project includes a FastAPI service to provide access to the scraped data and manage configurations. Built as a microservices-based system, it’s Dockerized for easy deployment, enabling efficient data collection, storage, and processing based on customizable parameters. The architecture is designed for extensibility, allowing users to build additional services or enhance the existing API.
@@ -35,6 +31,39 @@ A Python-based scraper designed to collect real estate listings from a major Cze
 - Automatically reconnects to RabbitMQ if the connection is interrupted
 
 ---
+
+Certainly, here’s a streamlined version of the use cases for the `README.md`:
+
+---
+
+## 💡 Use Cases
+
+The Sreality Real Estate Scraper offers versatile applications across the real estate and data analytics sectors:
+
+### 1. **Market Analysis and Trends**
+   - Track pricing trends, analyze demand for property types, and monitor market fluctuations over time.
+
+### 2. **Data-Driven Real Estate Investment**
+   - Assist investors in identifying profitable properties by analyzing characteristics like price, size, and location.
+
+### 3. **Competitive Analysis for Real Estate Agencies**
+   - Enable agencies to monitor competitor listings, pricing strategies, and market positioning.
+
+### 4. **Automated Alerts for Potential Buyers**
+   - Set up notifications for buyers based on custom criteria, such as price range, location, or property type.
+
+### 5. **Property Valuation and Price Prediction Models**
+   - Develop predictive models to estimate property values using historical and real-time listing data.
+
+### 6. **Data Enrichment for Real Estate Websites**
+   - Enrich property listings with additional insights, like neighborhood pricing trends or market comparisons.
+
+### 7. **Research and Academic Studies**
+   - Provide a robust dataset for research on real estate trends, socioeconomic impacts on property prices, and urban development.
+
+---
+
+These use cases showcase the broad applicability of the Sreality Real Estate Scraper for real estate professionals, data analysts, and researchers alike.
 
 ## 🛠 Tech Stack
 
@@ -137,12 +166,6 @@ This project includes a FastAPI service that provides data access to the scraped
 
 ---
 
-The `README.md` looks well-organized and provides clear guidance for users on setup, configuration, usage, and querying options. The section for API query parameters and error handling is especially useful, as it gives users the flexibility to customize searches and handle potential issues effectively. 
-
-Here’s a minor improvement for consistency in wording and a bit more clarity:
-
----
-
 ## 🔍 API Query Parameters
 
 The FastAPI service allows querying of the listings database with the following parameters, offering flexibility for targeted searches.
@@ -175,11 +198,26 @@ The application checks and handles missing or incorrect configurations:
 
 ---
 
-## 🔮 Future Enhancements
+## 🆕 Upcoming Features and Improvements
 
-- **Analytics**: Add performance tracking for the scraper.
-- **Enhanced Error Handling**: More specific exception handling and retry mechanisms.
-- **Notification System**: Send alerts or notifications for new or specific types of listings.
+This project is continuously evolving, with planned enhancements focused on improving data quality, usability, and extensibility. Here’s a look at some of the upcoming features and improvements:
+
+### 1. **Enhanced Data Cleaning and Validation**
+   - **Improved Data Consistency**: Implementing advanced cleaning rules to standardize property data, ensuring consistent formatting across all fields (e.g., uniform city names, standardized price and size formats).
+   - **Automatic Error Detection**: Identifying and handling common data issues like incomplete or duplicate listings, reducing noise in the dataset.
+   - **Customizable Cleaning Pipelines**: Allowing users to configure data cleaning steps based on their needs, enhancing flexibility for different applications.
+
+### 2. **Extended Filtering and Search Options**
+   - **Additional Query Parameters**: Adding more filters to refine search results, such as property age, building materials, and energy efficiency ratings.
+   - **Dynamic Range Filtering**: Enabling range-based filtering for fields like `price` and `size_m2`, allowing users to specify minimum and maximum values.
+
+### 3. **Data Enrichment and Analytics**
+   - **Automated Data Enrichment**: Integrating additional sources to enrich listings with data like neighborhood amenities, historical pricing trends, and estimated property value.
+   - **Analytics and Reporting**: Adding basic analytics to summarize listings, identify trends, and visualize data distributions (e.g., price distribution by city).
+
+### 4. **Notification and Alert System**
+   - **User-Defined Notifications**: Allowing users to set alerts for new listings that match specific criteria, making it easier to stay updated on relevant properties.
+   - **Scheduled Summaries**: Generating periodic summaries of new or notable listings to keep users informed.
 
 ---
 
@@ -188,3 +226,5 @@ The application checks and handles missing or incorrect configurations:
 This project is open-source and available under the [MIT License](LICENSE).
 
 ---
+
+
