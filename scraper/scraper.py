@@ -181,7 +181,7 @@ class Scraper:
 
     def run(self):
         self.connect_to_rabbitmq()
-        self.scrape_pages(1, 5)
+        self.scrape_all()
         self.send_to_queue()
 
 
