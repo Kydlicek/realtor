@@ -82,8 +82,8 @@ These use cases showcase the broad applicability of the Sreality Real Estate Scr
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/real-estate-scraper.git
-   cd real-estate-scraper
+   git clone https://github.com/Kydlicek/realtor.git
+   cd realtor
    ```
 
 2. **Create a `.env` File**
