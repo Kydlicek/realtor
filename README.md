@@ -141,15 +141,14 @@ This project includes a FastAPI service that provides data access to the scraped
 
 The FastAPI service allows querying of the listings database with the following parameters, giving flexibility for targeted searches:
 
-- **`collection_name`** (str): The collection to query, such as **flats** or **houses**.
-- **`hash_id`** (Optional[str]): A unique identifier for each listing.
-- **`id`** (Optional[str]): An alternative identifier if needed.
-- **`property_type`** (Optional[str]): Specify the type of property (e.g., flat, house).
-- **`transaction`** (Optional[str]): The type of transaction (e.g., buy, rent).
-- **`city`** (Optional[str]): Filter listings by city.
-- **`price`** (Optional[float]): Set a maximum price for the listings.
-- **`size_m2`** (Optional[int]): Specify a minimum size in square meters.
-- **`rk`** (Optional[bool]): Boolean to filter based on listings with or without a real estate agent involved.
+- **`collection_name`** str: The collection to query, such as **flats** or **houses**.
+- **`hash_id`** str: A unique identifier for each listing.
+- **`id`** str: MongoDB identifier.
+- **`transaction`** str: The type of transaction (e.g., buys, rents).
+- **`city`** str: Filter listings by city.
+- **`price`** int: Set a maximum price for the listings.
+- **`size_m2`** int: Specify a minimum size in square meters.
+- **`rk`** bool: Boolean to filter based on listings with or without a real estate agent involved.
 
 These parameters enable precise querying, making the API versatile for a variety of applications or custom integrations.
 
