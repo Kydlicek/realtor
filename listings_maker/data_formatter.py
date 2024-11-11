@@ -26,7 +26,7 @@ class Listing:
 
         # Extract city and city part
         self.city, self.city_part, self.street = self.extract_location(data)
-        self.size_m2 = str(self.find_in_items(data, "Užitná ploch"))
+        self.size_m2 = self.find_in_items(data, "Užitná ploch")
         self.size_kk = self.get_kk_size()
 
         # Extract price details
@@ -106,9 +106,9 @@ class Listing:
             # Attempt to match with city part
             match = re.match(city_part_pattern, value)
             if match:
-                location["street"] = match.group(1).strip()
-                location["city"] = match.group(2).strip()
-                location["city_part"] = match.group(3).strip()
+                location["street"] = match.group(1).strip().lower()
+                location["city"] = match.group(2).strip().lower()
+                location["city_part"] = match.group(3).strip().lower()
             else:
                 # Attempt to match without city part
                 match = re.match(city_pattern, value)
@@ -120,7 +120,7 @@ class Listing:
 
     def extract_pricing_info(self, data: Dict) -> Dict:
         try:
-            return str(data["price_czk"]["value_raw"])
+            return data["price_czk"]["value_raw"]
             # preparatiom for more coplex pricing
 
             # "energy_utilities": data.get("energy_utilities", 0),
@@ -209,9 +209,9 @@ class Listing:
             "city": self.city,
             "city_part": self.city_part,
             "street": self.street,
-            "size_m2": self.size_m2,
+            "size_m2": int(self.size_m2),
             "size_kk": self.size_kk,
-            "price": self.price,
+            "price": int(self.price),
             "rk": self.rk,
             "contact": self.contact,
             "gps": self.gps,

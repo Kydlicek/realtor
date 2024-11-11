@@ -39,13 +39,14 @@ async def add_property(property: Property):
         logger.error(f"Error adding property: {str(e)}")
         raise HTTPException(status_code=500, detail="Error adding property.")
 
-
+# collection name is property type
 @app.get("/{collection_name}")
 async def find_by_parameter(
     collection_name: str,
     hash_id: Optional[str] = None,
     id: Optional[str] = None,
     property_type: Optional[str] = None,
+    transaction: Optional[str] = None,
     city: Optional[str] = None,
     price: Optional[float] = None,
     size_m2: Optional[int] = None,
@@ -53,10 +54,6 @@ async def find_by_parameter(
 ):
 
     collection = db[collection_name]
-    logger.info(
-        f"Searching items in collection '{collection_name}' with provided parameters"
-    )
-
     query = {}
 
     if id:
@@ -65,37 +62,21 @@ async def find_by_parameter(
         query["hash_id"] = hash_id
     if property_type:
         query["property_type"] = property_type
+    if transaction:
+        query["transaction"] = transaction
     if city:
         query["city"] = city
-    if rk:
+    if rk is not None:
         query["rk"] = rk
-
     if size_m2 is not None:
-        query["size_m2"] = {"$lt": size_m2}
+        query["size_m2"] = {"$lt": int(size_m2)}  
+    if price is not None:
+        query["price"] = {"$lte": int(price)}  # Ensure `price` is converted to int in MongoDB
 
-    logger.info(f"Query built: {query}")
-
-    try:
-        results = collection.find(query)
-        results_list = list(results)  # Convert cursor to list here
-
-        logging.info(
-            f"count of results for query {len(results_list)}"
-        )  # Now you can use len() safely
-
-        for result in results_list:
-            result["_id"] = str(result["_id"])
-
-        if not results_list:
-            raise HTTPException(
-                status_code=404, detail="No items found matching the query parameters."
-            )
-
-        return {"results": results_list}
-
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="An internal error occurred while processing the request.",
-        )
+    # Fetch and process results
+    results = collection.find(query)
+    results_list = [dict(result, _id=str(result["_id"])) for result in results]
+    if not results_list:
+        raise HTTPException(status_code=404, detail="No items found matching the query parameters.")
+    
+    return {"results": results_list}

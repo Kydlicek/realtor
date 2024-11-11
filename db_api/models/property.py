@@ -3,21 +3,21 @@ from typing import List, Optional, Dict
 
 
 class Property(BaseModel):
-    hash_id: Optional[str] = None
+    hash_id: Optional[str]
     transaction: str
     property_type: str
     city: Optional[str]
-    city_part: Optional[str] = None
+    city_part: Optional[str] 
     street: Optional[str]
-    size_m2: str
-    size_kk: Optional[str] = None
+    size_m2: int
+    size_kk: Optional[str]
 
-    price: Optional[str] = None
+    price: int
     rk: bool
     contact: Dict
 
     gps: Dict
-    url: Optional[str] = None
+    url:  str
     additional_info: Optional[Dict] = None
     description: Optional[str] = None
     meta_description: Optional[str] = None
