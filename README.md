@@ -172,7 +172,7 @@ The FastAPI service allows querying of the listings database with the following 
 
 - **`hash_id`** *(str)*: A unique identifier for each listing.
 - **`id`** *(str)*: MongoDB identifier.
-- **`transaction`** *(str)*: Type of transaction (e.g., "buy" or "rent").
+- **`transaction`** *(str)*: Type of transaction (e.g., "buys" or "rents").
 - **`city`** *(str)*: Filter listings by city name.
 - **`price`** *(int)*: Maximum price for the listings.
 - **`size_m2`** *(int)*: Minimum size in square meters.
