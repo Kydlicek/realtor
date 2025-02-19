@@ -1,6 +1,0 @@
-fastapi[all]
-pydantic
-requests
-uvicorn
-openai
-httpx

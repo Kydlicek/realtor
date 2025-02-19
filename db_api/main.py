@@ -39,6 +39,7 @@ async def add_property(property: Property):
         logger.error(f"Error adding property: {str(e)}")
         raise HTTPException(status_code=500, detail="Error adding property.")
 
+
 # collection name is property type
 @app.get("/{collection_name}")
 async def find_by_parameter(
@@ -51,6 +52,7 @@ async def find_by_parameter(
     price: Optional[float] = None,
     size_m2: Optional[int] = None,
     rk: Optional[bool] = None,
+    size_kk: Optional[str] = None,
 ):
 
     collection = db[collection_name]
@@ -68,15 +70,21 @@ async def find_by_parameter(
         query["city"] = city
     if rk is not None:
         query["rk"] = rk
+    if size_kk is not None:
+        query["size_kk"] = size_kk
     if size_m2 is not None:
-        query["size_m2"] = {"$lt": int(size_m2)}  
+        query["size_m2"] = {"$lt": int(size_m2)}
     if price is not None:
-        query["price"] = {"$lte": int(price)}  # Ensure `price` is converted to int in MongoDB
+        query["price"] = {
+            "$lte": int(price)
+        }  # Ensure `price` is converted to int in MongoDB
 
     # Fetch and process results
     results = collection.find(query)
     results_list = [dict(result, _id=str(result["_id"])) for result in results]
     if not results_list:
-        raise HTTPException(status_code=404, detail="No items found matching the query parameters.")
-    
+        raise HTTPException(
+            status_code=404, detail="No items found matching the query parameters."
+        )
+
     return {"results": results_list}
